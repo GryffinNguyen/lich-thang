@@ -10,6 +10,7 @@
       --card: #1C1C1E;
       --card2: #2C2C2E;
       --accent: #0A84FF;
+      --green: #30D158;
       --text: #FFFFFF;
       --sub: #8E8E93;
       --border: rgba(255, 255, 255, 0.12);
@@ -17,15 +18,14 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background: var(--bg); color: var(--text); height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
 
-    /* THANH CHUYỂN MÀN HÌNH TÁCH BIỆT TRÊN CÙNG */
+    /* THANH CHUYỂN MÀN HÌNH + NÚT XUẤT NHANH 1 CHẠM */
     .top-nav {
-      padding: calc(env(safe-area-inset-top, 12px) + 8px) 16px 12px;
+      padding: calc(env(safe-area-inset-top, 12px) + 8px) 16px 10px;
       background: var(--card);
       border-bottom: 0.5px solid var(--border);
       display: flex;
+      flex-direction: column;
       gap: 10px;
-      align-items: center;
-      justify-content: space-between;
       z-index: 50;
     }
     .mode-switch {
@@ -37,11 +37,11 @@
     }
     .mode-btn {
       flex: 1;
-      padding: 9px 0;
+      padding: 8px 0;
       border: none;
       background: transparent;
       color: var(--sub);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       border-radius: 9px;
       cursor: pointer;
@@ -52,25 +52,47 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
+    /* THANH HÀNH ĐỘNG SIÊU TỐC NGAY ĐẦU MÀN HÌNH */
+    .quick-export-bar {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 8px;
+    }
+    .btn-quick {
+      border: none;
+      padding: 10px 8px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .btn-quick:active { opacity: 0.75; }
+    .btn-today-only { background: var(--card2); border: 1px solid rgba(10, 132, 255, 0.45); color: #64D2FF; }
+    .btn-batch-week { background: linear-gradient(135deg, #0A84FF, #30D158); color: #fff; }
+
     /* KHUNG TRANG ĐỘC LẬP */
-    .screen { flex: 1; overflow-y: auto; display: none; padding: 16px 16px calc(env(safe-area-inset-bottom, 20px) + 20px); }
+    .screen { flex: 1; overflow-y: auto; display: none; padding: 14px 16px calc(env(safe-area-inset-bottom, 20px) + 20px); }
     .screen.active { display: block; }
 
-    /* ================= MÀN HÌNH 1: LẬP KẾ HOẠCH TRỰC QUAN ================= */
     .section-card {
       background: var(--card);
       border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 16px;
+      padding: 15px;
+      margin-bottom: 14px;
       border: 0.5px solid var(--border);
     }
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
-    .section-title { font-size: 16px; font-weight: 700; }
+    .section-title { font-size: 15px; font-weight: 700; }
     .hint-badge {
       font-size: 11px;
       background: rgba(10, 132, 255, 0.18);
@@ -80,16 +102,16 @@
       font-weight: 500;
     }
 
-    /* LƯỚI LỊCH CHỌN NHÓM NGÀY TRỰC QUAN */
-    .cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .cal-nav-btn { background: var(--card2); border: none; color: #fff; width: 34px; height: 34px; border-radius: 10px; font-size: 16px; font-weight: 700; }
-    .cal-month-label { font-size: 16px; font-weight: 700; }
+    /* LƯỚI LỊCH CHỌN NHÓM NGÀY */
+    .cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .cal-nav-btn { background: var(--card2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 9px; font-size: 16px; font-weight: 700; }
+    .cal-month-label { font-size: 15px; font-weight: 700; }
 
-    .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 12px; color: var(--sub); font-weight: 600; margin-bottom: 8px; }
-    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 6px; }
+    .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 11.5px; color: var(--sub); font-weight: 600; margin-bottom: 6px; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 5px; }
     
     .cal-cell {
-      height: 44px;
+      height: 42px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -97,7 +119,7 @@
       position: relative;
       cursor: pointer;
       user-select: none;
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 500;
       border-radius: 10px;
     }
@@ -106,62 +128,35 @@
     .cal-cell.range-start { background: var(--accent); color: #fff; font-weight: 700; border-radius: 10px 0 0 10px; }
     .cal-cell.range-end { background: var(--accent); color: #fff; font-weight: 700; border-radius: 0 10px 10px 0; }
     .cal-cell.range-single { background: var(--accent); color: #fff; font-weight: 700; border-radius: 10px; }
-    .cal-cell.active-week-indicator::after {
-      content: '';
-      position: absolute;
-      bottom: 2px;
-      width: 14px;
-      height: 2px;
-      background: #30D158;
-      border-radius: 1px;
-    }
-    .lunar-mini { font-size: 9px; color: #FF9F0A; font-weight: 700; line-height: 1; margin-top: 2px; }
+    .cal-cell.real-today { box-shadow: inset 0 0 0 1.5px var(--green); }
+    .lunar-mini { font-size: 8.5px; color: #FF9F0A; font-weight: 700; line-height: 1; margin-top: 1px; }
     .cal-cell.range-start .lunar-mini, .cal-cell.range-end .lunar-mini, .cal-cell.range-single .lunar-mini { color: #FFF; }
     .dot-row { display: flex; gap: 2px; margin-top: 2px; }
     .mini-dot { width: 4px; height: 4px; border-radius: 50%; }
 
     .range-status-bar {
-      margin-top: 12px;
-      padding: 10px 12px;
+      margin-top: 10px;
+      padding: 9px 12px;
       background: var(--card2);
       border-radius: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 13px;
-    }
-    .btn-focus-day {
-      background: rgba(48, 209, 88, 0.2);
-      color: #30D158;
-      border: 1px solid rgba(48, 209, 88, 0.4);
-      padding: 5px 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 12.5px;
     }
 
-    /* FORM TÁCH RIÊNG GIỜ BẮT ĐẦU & GIỜ KẾT THÚC */
-    .time-split-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
+    /* FORM TÁCH GIỜ BẮT ĐẦU & GIỜ KẾT THÚC */
+    .time-split-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
     .time-box {
       flex: 1;
       background: var(--card2);
-      padding: 8px 12px;
+      padding: 7px 12px;
       border-radius: 10px;
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 2px;
     }
-    .time-box label {
-      font-size: 11px;
-      color: var(--sub);
-      font-weight: 600;
-      text-transform: uppercase;
-    }
+    .time-box label { font-size: 10.5px; color: var(--sub); font-weight: 600; text-transform: uppercase; }
     input[type="time"] {
       background: transparent;
       border: none;
@@ -177,7 +172,7 @@
       background: var(--card2);
       border: 1px solid transparent;
       color: #fff;
-      padding: 12px;
+      padding: 11px 12px;
       border-radius: 10px;
       font-size: 14px;
       width: 100%;
@@ -185,9 +180,9 @@
     }
     input[type="text"]:focus { border-color: var(--accent); }
 
-    .color-row { display: flex; align-items: center; justify-content: space-between; margin: 12px 0; }
+    .color-row { display: flex; align-items: center; justify-content: space-between; margin: 10px 0; }
     .color-palette { display: flex; gap: 10px; }
-    .c-swatch { width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid transparent; cursor: pointer; }
+    .c-swatch { width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid transparent; cursor: pointer; }
     .c-swatch.active { border-color: #fff; transform: scale(1.12); }
 
     .btn-primary {
@@ -195,35 +190,29 @@
       background: var(--accent);
       color: #fff;
       border: none;
-      padding: 13px;
+      padding: 12px;
       border-radius: 12px;
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 600;
       cursor: pointer;
     }
     .btn-primary:active { opacity: 0.8; }
 
-    /* DANH SÁCH SỰ KIỆN & REMINDERS */
     .event-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 12px;
+      padding: 9px 12px;
       background: var(--card2);
       border-radius: 10px;
-      margin-top: 8px;
+      margin-top: 7px;
       border-left: 4px solid var(--accent);
     }
-    .event-meta { font-size: 12px; color: var(--sub); margin-top: 2px; }
+    .event-meta { font-size: 11.5px; color: var(--sub); margin-top: 2px; }
     .btn-del { background: rgba(255,69,58,0.2); color: #FF453A; border: none; padding: 5px 10px; border-radius: 7px; font-size: 12px; font-weight: 600; }
 
-    /* ================= MÀN HÌNH 2: XEM TRƯỚC LOCKSCREEN (TÁCH RIÊNG) ================= */
-    .studio-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-    }
+    /* MÀN HÌNH 2: XEM TRƯỚC & CĂN VỊ TRÍ (LƯU CẤU HÌNH 1 LẦN) */
+    .studio-wrapper { display: flex; flex-direction: column; align-items: center; gap: 14px; }
     .lockscreen-frame {
       width: 286px;
       height: 620px;
@@ -241,11 +230,7 @@
       background-position: center;
       background-image: linear-gradient(180deg, #1e232a 0%, #121519 55%, #090a0c 100%);
     }
-    .bg-dim {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.35);
-    }
+    .bg-dim { position: absolute; inset: 0; background: rgba(0,0,0,0.35); }
     .ios-top-hud {
       position: absolute;
       top: 10px; left: 0; right: 0;
@@ -268,7 +253,6 @@
       font-size: 10px;
       font-weight: 600;
     }
-
     #gpuAgendaLayer {
       position: absolute;
       left: 14px;
@@ -278,7 +262,6 @@
       z-index: 2;
       pointer-events: none;
     }
-
     .studio-controls {
       width: 100%;
       max-width: 420px;
@@ -293,27 +276,29 @@
     .slider-row { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--sub); }
     .slider-row span { min-width: 72px; font-weight: 500; }
     input[type="range"] { flex: 1; accent-color: var(--accent); }
-    .studio-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   </style>
 </head>
 <body>
 
-  <!-- THANH CHUYỂN ĐỔI 2 MÀN HÌNH ĐỘC LẬP -->
+  <!-- THANH ĐIỀU HƯỚNG + NÚT XUẤT NHANH 1 CHẠM (KHÔNG CẦN VÀO XEM TRƯỚC) -->
   <div class="top-nav">
     <div class="mode-switch">
       <button class="mode-btn active" id="btnModePlan" onclick="switchScreen('plan')">📅 Lịch & Ghi chú</button>
-      <button class="mode-btn" id="btnModePreview" onclick="switchScreen('preview')">📱 Xem trước Lockscreen</button>
+      <button class="mode-btn" id="btnModePreview" onclick="switchScreen('preview')">📱 Căn chỉnh Nền & Vị trí</button>
+    </div>
+    <div class="quick-export-bar">
+      <button class="btn-quick btn-today-only" onclick="exportSingleToday()">⚡ Xuất Hôm nay</button>
+      <button class="btn-quick btn-batch-week" id="btnBatchExport" onclick="exportBatch7Days()">🔄 Xuất 7 ngày (Tự nhảy ngày)</button>
     </div>
   </div>
 
   <!-- ================= MÀN HÌNH 1: LỊCH CHỌN NHÓM NGÀY & GHI CHÚ ================= -->
   <div class="screen active" id="screen-plan">
     
-    <!-- PHẦN 1: LƯỚI LỊCH CHỌN NHÓM NGÀY -->
     <div class="section-card">
       <div class="section-header">
         <span class="section-title">Chọn ngày / Nhóm ngày</span>
-        <span class="hint-badge">Chạm 2 mốc để quét nhóm ngày</span>
+        <span class="hint-badge">Viền xanh lá = Hôm nay</span>
       </div>
 
       <div class="cal-nav">
@@ -329,20 +314,17 @@
 
       <div class="range-status-bar">
         <div>
-          <div style="font-size:11px; color:var(--sub);">Đang chọn:</div>
-          <div style="font-weight:700; color:#64D2FF;" id="selectedRangeText">11/11/2026</div>
+          <span style="color:var(--sub);">Đang chọn: </span>
+          <strong style="color:#64D2FF;" id="selectedRangeText">Hôm nay</strong>
         </div>
-        <button class="btn-focus-day" onclick="setAsFocusDay()">Đặt làm ngày "Today" trên nền</button>
       </div>
     </div>
 
-    <!-- PHẦN 2: THÊM CÔNG VIỆC VÀO NHÓM NGÀY ĐANG CHỌN -->
     <div class="section-card">
       <div class="section-header">
-        <span class="section-title">Thêm lịch trình vào ngày đã chọn</span>
+        <span class="section-title">Thêm việc vào ngày đã chọn</span>
       </div>
 
-      <!-- 2 Ô GIỜ BẮT ĐẦU & GIỜ KẾT THÚC TÁCH RIÊNG -->
       <div class="time-split-row">
         <div class="time-box">
           <label>Giờ bắt đầu</label>
@@ -360,8 +342,8 @@
       </div>
 
       <div class="color-row">
-        <span style="font-size:13px; color:var(--sub);">Màu thẻ lịch:</span>
-        <div class="color-palette" id="colorPalette">
+        <span style="font-size:13px; color:var(--sub);">Màu thẻ:</span>
+        <div class="color-palette">
           <div class="c-swatch active" style="background:#3897F0;" onclick="selectColor('#3897F0', this)"></div>
           <div class="c-swatch" style="background:#5AC8FA;" onclick="selectColor('#5AC8FA', this)"></div>
           <div class="c-swatch" style="background:#34C759;" onclick="selectColor('#34C759', this)"></div>
@@ -372,43 +354,41 @@
         </div>
       </div>
 
-      <button class="btn-primary" onclick="addEventToRange()">+ Lưu vào nhóm ngày đã chọn</button>
+      <button class="btn-primary" onclick="addEventToRange()">+ Lưu công việc</button>
 
-      <!-- Danh sách công việc của tuần đang chọn -->
-      <div style="margin-top: 16px;">
+      <div style="margin-top: 14px;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:13px; font-weight:600; color:var(--sub);" id="weekListTitle">Lịch trình trong tuần đang xem</span>
-          <button onclick="clearAllEvents()" style="background:none; border:none; color:#FF453A; font-size:12px;">Xóa hết mẫu</button>
+          <span style="font-size:12.5px; font-weight:600; color:var(--sub);" id="weekListTitle">Lịch trình tuần này</span>
+          <button onclick="clearAllEvents()" style="background:none; border:none; color:#FF453A; font-size:12px;">Xóa hết</button>
         </div>
         <div id="eventsListContainer"></div>
       </div>
     </div>
 
-    <!-- PHẦN 3: REMINDERS (NHẮC NHỞ DƯỚI CÙNG) -->
     <div class="section-card">
       <div class="section-header">
-        <span class="section-title" style="color:#FF9F0A;">Reminders (Ghi chú cuối màn hình)</span>
+        <span class="section-title" style="color:#FF9F0A;">Reminders (Ghi chú cố định)</span>
       </div>
       <div class="input-row">
         <input type="text" id="remInput" placeholder="VD: Mang pin dự phòng, thẻ nhớ...">
-        <button class="btn-primary" style="width:90px; flex-shrink:0;" onclick="addReminder()">Thêm</button>
+        <button class="btn-primary" style="width:85px; flex-shrink:0;" onclick="addReminder()">Thêm</button>
       </div>
       <div id="remindersListContainer"></div>
     </div>
 
   </div>
 
-  <!-- ================= MÀN HÌNH 2: XEM TRƯỚC & XUẤT HÌNH NỀN ================= -->
+  <!-- ================= MÀN HÌNH 2: CĂN CHỈNH NỀN & VỊ TRÍ (TỰ LƯU) ================= -->
   <div class="screen" id="screen-preview">
     <div class="studio-wrapper">
       
-      <div class="lockscreen-frame" id="previewFrame">
+      <div class="lockscreen-frame">
         <div class="bg-layer" id="previewBgLayer"></div>
         <div class="bg-dim" id="previewDimLayer"></div>
 
         <div class="ios-top-hud">
           <div class="dynamic-island"></div>
-          <div class="hud-date" id="hudDateStr">Wed 11 Nov</div>
+          <div class="hud-date" id="hudDateStr">Today</div>
           <div class="hud-clock">10:21</div>
           <div class="hud-widgets">
             <div>☀️ 28° Mostly Sunny</div>
@@ -422,18 +402,14 @@
       <div class="studio-controls">
         <div class="slider-row">
           <span>Vị trí dọc</span>
-          <input type="range" id="sliderY" min="180" max="320" value="230" oninput="updateGpuPosition()">
+          <input type="range" id="sliderY" min="180" max="320" value="230" oninput="saveLayoutSettings()">
         </div>
         <div class="slider-row">
           <span>Độ tối nền</span>
-          <input type="range" id="sliderDim" min="0" max="80" value="38" oninput="updateGpuPosition()">
+          <input type="range" id="sliderDim" min="0" max="80" value="38" oninput="saveLayoutSettings()">
         </div>
-
-        <div class="studio-btn-grid">
-          <input type="file" id="bgFileInput" accept="image/*" style="display:none;" onchange="handleBgUpload(event)">
-          <button class="btn-primary" style="background:var(--card2);" onclick="document.getElementById('bgFileInput').click()">🖼️ Chọn ảnh nền</button>
-          <button class="btn-primary" onclick="exportHighResWallpaper()">⇡ Xuất ra Màn hình khóa</button>
-        </div>
+        <input type="file" id="bgFileInput" accept="image/*" style="display:none;" onchange="handleBgUpload(event)">
+        <button class="btn-primary" style="background:var(--card2);" onclick="document.getElementById('bgFileInput').click()">🖼️ Đổi ảnh nền gốc (Tự động lưu)</button>
       </div>
 
     </div>
@@ -442,7 +418,7 @@
   <canvas id="exportCanvas" width="1290" height="2796" style="display:none;"></canvas>
 
 <script>
-// ================= 1. THUẬT TOÁN ÂM LỊCH (CHỈ LỌC MÙNG 1 & 29/30 CUỐI THÁNG) =================
+// ================= 1. THUẬT TOÁN ÂM LỊCH (MÙNG 1 & 29/30) =================
 function jdFromDate(d, m, y) {
   const a = Math.floor((14 - m) / 12);
   const y2 = y + 4800 - a;
@@ -477,43 +453,31 @@ function getLunarSpecialLabel(dateObj) {
   return '';
 }
 
-// ================= 2. TRẠNG THÁI & DỮ LIỆU CỤC BỘ =================
+// ================= 2. QUẢN LÝ NGÀY THỰC TẾ & DỮ LIỆU =================
 const toISO = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const fromISO = (s) => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+
+function getRealTodayISO() {
+  return toISO(new Date());
+}
 
 let todayDate = new Date();
 let viewYear = todayDate.getFullYear();
 let viewMonth = todayDate.getMonth();
 
-let rangeStartISO = toISO(todayDate);
-let rangeEndISO = toISO(todayDate);
+let rangeStartISO = getRealTodayISO();
+let rangeEndISO = getRealTodayISO();
 let isSelectingSecondTap = false;
-
-let focusDateISO = toISO(todayDate);
 let selectedColor = '#3897F0';
+
 let customBgDataUrl = localStorage.getItem('ls_bg_img') || null;
+let savedY = localStorage.getItem('ls_pos_y') || '230';
+let savedDim = localStorage.getItem('ls_dim') || '38';
+document.getElementById('sliderY').value = savedY;
+document.getElementById('sliderDim').value = savedDim;
 
-let eventsData = JSON.parse(localStorage.getItem('ls_week_events') || 'null');
-let remindersData = JSON.parse(localStorage.getItem('ls_week_reminders') || 'null');
-
-if (!eventsData) {
-  const monday = getMondayOfWeek(todayDate);
-  const dayISO = (offset) => { const d = new Date(monday); d.setDate(d.getDate() + offset); return toISO(d); };
-  eventsData = [
-    { id: '1', start: dayISO(0), end: dayISO(6), time: '05:30–10:00', title: 'Wake up and gym', color: '#3897F0' },
-    { id: '2', start: dayISO(1), end: dayISO(1), time: '12:00–13:00', title: 'Lunch with Jo', color: '#5AC8FA' },
-    { id: '3', start: dayISO(1), end: dayISO(1), time: '13:30–14:00', title: 'Meetings', color: '#FFD60A' },
-    { id: '4', start: dayISO(1), end: dayISO(6), time: '16:30–17:00', title: 'Reviewing KPIs', color: '#FF6961' }
-  ];
-  focusDateISO = dayISO(1);
-  rangeStartISO = dayISO(1);
-  rangeEndISO = dayISO(1);
-  localStorage.setItem('ls_week_events', JSON.stringify(eventsData));
-}
-if (!remindersData) {
-  remindersData = ['Fruits', 'Cheese'];
-  localStorage.setItem('ls_week_reminders', JSON.stringify(remindersData));
-}
+let eventsData = JSON.parse(localStorage.getItem('ls_week_events') || '[]');
+let remindersData = JSON.parse(localStorage.getItem('ls_week_reminders') || '[]');
 
 function getMondayOfWeek(d) {
   const copy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -523,19 +487,26 @@ function getMondayOfWeek(d) {
   return copy;
 }
 
-// ================= 3. ĐIỀU HƯỚNG 2 MÀN HÌNH TÁCH BIỆT =================
+// Tự động cập nhật lại ngày thực tế mỗi khi mở lại App từ màn hình chính
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    renderInteractiveCalendar();
+    renderEventsList();
+  }
+});
+
 function switchScreen(mode) {
   document.getElementById('btnModePlan').classList.toggle('active', mode === 'plan');
   document.getElementById('btnModePreview').classList.toggle('active', mode === 'preview');
   document.getElementById('screen-plan').classList.toggle('active', mode === 'plan');
   document.getElementById('screen-preview').classList.toggle('active', mode === 'preview');
   if (mode === 'preview') {
-    renderLockscreenPreviewDOM();
+    renderLockscreenPreviewDOM(getRealTodayISO());
     updateGpuPosition();
   }
 }
 
-// ================= 4. LƯỚI LỊCH CHỌN NHÓM NGÀY TRỰC QUAN =================
+// ================= 3. LỊCH CHỌN NHÓM NGÀY (KHÔNG LÀM LỆCH NGÀY HÔM NAY) =================
 function changeMonth(delta) {
   viewMonth += delta;
   if (viewMonth > 11) { viewMonth = 0; viewYear++; }
@@ -547,7 +518,6 @@ function onTapCalendarDate(iso) {
   if (!isSelectingSecondTap) {
     rangeStartISO = iso;
     rangeEndISO = iso;
-    focusDateISO = iso;
     isSelectingSecondTap = true;
   } else {
     if (iso < rangeStartISO) {
@@ -562,12 +532,6 @@ function onTapCalendarDate(iso) {
   renderEventsList();
 }
 
-function setAsFocusDay() {
-  focusDateISO = rangeStartISO;
-  renderInteractiveCalendar();
-  renderEventsList();
-}
-
 function fmtShortVN(iso) {
   const [,m,d] = iso.split('-');
   return `${d}/${m}`;
@@ -578,15 +542,10 @@ function renderInteractiveCalendar() {
   const grid = document.getElementById('interactiveCalGrid');
   grid.innerHTML = '';
 
+  const realToday = getRealTodayISO();
   const firstDay = new Date(viewYear, viewMonth, 1);
   const startOffset = (firstDay.getDay() + 6) % 7;
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-
-  const focusMonday = getMondayOfWeek(fromISO(focusDateISO));
-  const focusSunday = new Date(focusMonday);
-  focusSunday.setDate(focusMonday.getDate() + 6);
-  const weekStartISO = toISO(focusMonday);
-  const weekEndISO = toISO(focusSunday);
 
   for (let i = 0; i < startOffset; i++) {
     const empty = document.createElement('div');
@@ -605,9 +564,7 @@ function renderInteractiveCalendar() {
     else if (iso === rangeEndISO) cell.classList.add('range-end');
     else if (iso > rangeStartISO && iso < rangeEndISO) cell.classList.add('in-range');
 
-    if (iso >= weekStartISO && iso <= weekEndISO) {
-      cell.classList.add('active-week-indicator');
-    }
+    if (iso === realToday) cell.classList.add('real-today');
 
     const lunarLabel = getLunarSpecialLabel(cellDate);
     const dayEvents = eventsData.filter(e => iso >= e.start && iso <= e.end);
@@ -624,13 +581,13 @@ function renderInteractiveCalendar() {
 
   const labelEl = document.getElementById('selectedRangeText');
   if (rangeStartISO === rangeEndISO) {
-    labelEl.textContent = `${fmtShortVN(rangeStartISO)} (Chạm ngày khác để nối nhóm ngày)`;
+    labelEl.textContent = `${fmtShortVN(rangeStartISO)} (Chạm ngày thứ 2 nếu muốn nối chuỗi ngày)`;
   } else {
-    labelEl.textContent = `Nhóm ngày: ${fmtShortVN(rangeStartISO)} ➔ ${fmtShortVN(rangeEndISO)}`;
+    labelEl.textContent = `${fmtShortVN(rangeStartISO)} ➔ ${fmtShortVN(rangeEndISO)}`;
   }
 }
 
-// ================= 5. THÊM / XÓA SỰ KIỆN VỚI 2 Ô GIỜ RIÊNG BIỆT =================
+// ================= 4. QUẢN LÝ CÔNG VIỆC & REMINDERS =================
 function selectColor(color, el) {
   selectedColor = color;
   document.querySelectorAll('.c-swatch').forEach(s => s.classList.remove('active'));
@@ -677,16 +634,16 @@ function clearAllEvents() {
 
 function renderEventsList() {
   const container = document.getElementById('eventsListContainer');
-  const monday = getMondayOfWeek(fromISO(focusDateISO));
+  const monday = getMondayOfWeek(fromISO(rangeStartISO));
   const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
   const wStart = toISO(monday), wEnd = toISO(sunday);
 
   document.getElementById('weekListTitle').textContent =
-    `Lịch tuần (${fmtShortVN(wStart)} – ${fmtShortVN(wEnd)}) • Today: ${fmtShortVN(focusDateISO)}`;
+    `Lịch trình tuần (${fmtShortVN(wStart)} – ${fmtShortVN(wEnd)})`;
 
   const list = eventsData.filter(e => !(e.end < wStart || e.start > wEnd));
   if (list.length === 0) {
-    container.innerHTML = `<div style="font-size:13px; color:var(--sub); padding:10px 0;">Chưa có sự kiện nào trong tuần này.</div>`;
+    container.innerHTML = `<div style="font-size:13px; color:var(--sub); padding:8px 0;">Chưa có sự kiện nào trong tuần này.</div>`;
     return;
   }
 
@@ -730,7 +687,7 @@ function renderRemindersList() {
   `).join('');
 }
 
-// ================= 6. XEM TRƯỚC MÀN HÌNH KHÓA =================
+// ================= 5. CĂN CHỈNH & LƯU BỐ CỤC =================
 function handleBgUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -745,9 +702,13 @@ function handleBgUpload(e) {
 
 function applyBgPreview() {
   const bgEl = document.getElementById('previewBgLayer');
-  if (customBgDataUrl) {
-    bgEl.style.backgroundImage = `url(${customBgDataUrl})`;
-  }
+  if (customBgDataUrl) bgEl.style.backgroundImage = `url(${customBgDataUrl})`;
+}
+
+function saveLayoutSettings() {
+  localStorage.setItem('ls_pos_y', document.getElementById('sliderY').value);
+  localStorage.setItem('ls_dim', document.getElementById('sliderDim').value);
+  updateGpuPosition();
 }
 
 function updateGpuPosition() {
@@ -757,9 +718,9 @@ function updateGpuPosition() {
   document.getElementById('previewDimLayer').style.background = `rgba(0,0,0,${dim})`;
 }
 
-function renderLockscreenPreviewDOM() {
+function renderLockscreenPreviewDOM(targetISO) {
   applyBgPreview();
-  const focusDate = fromISO(focusDateISO);
+  const focusDate = fromISO(targetISO);
   const monday = getMondayOfWeek(focusDate);
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -772,7 +733,7 @@ function renderLockscreenPreviewDOM() {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
     const iso = toISO(d);
-    const isFocus = (iso === focusDateISO);
+    const isFocus = (iso === targetISO);
     const lunarBadge = getLunarSpecialLabel(d);
     const dayEvs = eventsData.filter(e => iso >= e.start && iso <= e.end)
                               .sort((a,b) => a.time.localeCompare(b.time));
@@ -800,7 +761,7 @@ function renderLockscreenPreviewDOM() {
     `;
   }
 
-  const todayEvs = eventsData.filter(e => focusDateISO >= e.start && focusDateISO <= e.end)
+  const todayEvs = eventsData.filter(e => targetISO >= e.start && targetISO <= e.end)
                              .sort((a,b) => a.time.localeCompare(b.time));
 
   const todayRowsHtml = todayEvs.length > 0 ? todayEvs.map(ev => `
@@ -827,19 +788,16 @@ function renderLockscreenPreviewDOM() {
   `;
 }
 
-// ================= 7. XUẤT ẢNH LOCKSCREEN RETINA (1290 x 2796) =================
-async function exportHighResWallpaper() {
+// ================= 6. ENGINE VẼ LÊN CANVAS CHO 1 NGÀY BẤT KỲ =================
+async function renderDayToBlob(targetISO, preloadedBgImg) {
   const canvas = document.getElementById('exportCanvas');
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
   const scaleFactor = H / 620;
 
-  if (customBgDataUrl) {
-    const img = new Image();
-    img.src = customBgDataUrl;
-    await new Promise(res => { img.onload = res; img.onerror = res; });
-    const s = Math.max(W / img.width, H / img.height);
-    ctx.drawImage(img, (W - img.width * s) / 2, (H - img.height * s) / 2, img.width * s, img.height * s);
+  if (preloadedBgImg) {
+    const s = Math.max(W / preloadedBgImg.width, H / preloadedBgImg.height);
+    ctx.drawImage(preloadedBgImg, (W - preloadedBgImg.width * s) / 2, (H - preloadedBgImg.height * s) / 2, preloadedBgImg.width * s, preloadedBgImg.height * s);
   } else {
     const grad = ctx.createLinearGradient(0, 0, 0, H);
     grad.addColorStop(0, '#1e232a');
@@ -859,7 +817,7 @@ async function exportHighResWallpaper() {
   const colGap = 14;
   const colW = (contentW - colGap * 6) / 7;
 
-  const focusDate = fromISO(focusDateISO);
+  const focusDate = fromISO(targetISO);
   const monday = getMondayOfWeek(focusDate);
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -869,9 +827,17 @@ async function exportHighResWallpaper() {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
     const iso = toISO(d);
-    const isFocus = (iso === focusDateISO);
+    const isFocus = (iso === targetISO);
     const lunarBadge = getLunarSpecialLabel(d);
     const colX = padX + i * (colW + colGap);
+
+    // Vẽ khung sáng nhẹ cho cột ngày Hôm nay
+    if (isFocus) {
+      ctx.fillStyle = 'rgba(10, 132, 255, 0.22)';
+      ctx.beginPath();
+      ctx.roundRect(colX - 4, startY - 38, colW + 8, 98, 14);
+      ctx.fill();
+    }
 
     ctx.font = `${isFocus ? '700' : '500'} 40px -apple-system, sans-serif`;
     ctx.fillStyle = isFocus ? '#FFFFFF' : 'rgba(255,255,255,0.78)';
@@ -915,10 +881,10 @@ async function exportHighResWallpaper() {
   ctx.textAlign = 'left';
   ctx.font = '700 62px -apple-system, sans-serif';
   ctx.fillStyle = '#FFFFFF';
-  ctx.fillText('Today', padX, curY);
+  ctx.fillText(`Today (${fmtShortVN(targetISO)})`, padX, curY);
 
   curY += 68;
-  const todayEvs = eventsData.filter(e => focusDateISO >= e.start && focusDateISO <= e.end)
+  const todayEvs = eventsData.filter(e => targetISO >= e.start && targetISO <= e.end)
                              .sort((a,b) => a.time.localeCompare(b.time));
 
   if (todayEvs.length === 0) {
@@ -953,17 +919,53 @@ async function exportHighResWallpaper() {
     });
   }
 
-  canvas.toBlob(blob => {
-    const file = new File([blob], 'lockscreen_agenda.png', { type: 'image/png' });
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: 'Lockscreen Agenda' }).catch(() => {});
-    } else {
-      const a = document.createElement('a');
-      a.download = 'lockscreen_agenda.png';
-      a.href = canvas.toDataURL('image/png');
-      a.click();
-    }
-  }, 'image/png', 1.0);
+  return new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
+}
+
+async function loadBgImageObj() {
+  if (!customBgDataUrl) return null;
+  const img = new Image();
+  img.src = customBgDataUrl;
+  await new Promise(res => { img.onload = res; img.onerror = res; });
+  return img;
+}
+
+// XUẤT 1 CHẠM RIÊNG NGÀY HÔM NAY
+async function exportSingleToday() {
+  const realToday = getRealTodayISO();
+  const bgImg = await loadBgImageObj();
+  const blob = await renderDayToBlob(realToday, bgImg);
+  const file = new File([blob], `${realToday}.png`, { type: 'image/png' });
+  if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+    navigator.share({ files: [file] }).catch(() => {});
+  }
+}
+
+// XUẤT GÓI 7 NGÀY LIÊN TIẾP (TỰ ĐỘNG NHẢY NGÀY TRÊN IPHONE)
+async function exportBatch7Days() {
+  const btn = document.getElementById('btnBatchExport');
+  const oldText = btn.textContent;
+  btn.textContent = '⏳ Đang tạo 7 ngày...';
+
+  const bgImg = await loadBgImageObj();
+  const files = [];
+  const baseDate = new Date();
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(baseDate);
+    d.setDate(baseDate.getDate() + i);
+    const iso = toISO(d);
+    const blob = await renderDayToBlob(iso, bgImg);
+    files.push(new File([blob], `${iso}.png`, { type: 'image/png' }));
+  }
+
+  btn.textContent = oldText;
+
+  if (navigator.share && navigator.canShare && navigator.canShare({ files })) {
+    navigator.share({ files }).catch(() => {});
+  } else {
+    alert('Trình duyệt không hỗ trợ chia sẻ nhiều tệp.');
+  }
 }
 
 renderInteractiveCalendar();
