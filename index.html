@@ -140,20 +140,50 @@
       font-weight: 600;
     }
 
-    /* FORM THÊM SỰ KIỆN VÀO NHÓM NGÀY ĐÃ CHỌN */
+    /* FORM TÁCH RIÊNG GIỜ BẮT ĐẦU & GIỜ KẾT THÚC */
+    .time-split-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .time-box {
+      flex: 1;
+      background: var(--card2);
+      padding: 8px 12px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .time-box label {
+      font-size: 11px;
+      color: var(--sub);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    input[type="time"] {
+      background: transparent;
+      border: none;
+      color: #FFF;
+      font-size: 16px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      outline: none;
+      width: 100%;
+    }
     .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
     input[type="text"] {
       background: var(--card2);
       border: 1px solid transparent;
       color: #fff;
-      padding: 11px 12px;
+      padding: 12px;
       border-radius: 10px;
       font-size: 14px;
       width: 100%;
       outline: none;
     }
     input[type="text"]:focus { border-color: var(--accent); }
-    .time-input { width: 135px !important; flex-shrink: 0; text-align: center; font-variant-numeric: tabular-nums; }
 
     .color-row { display: flex; align-items: center; justify-content: space-between; margin: 12px 0; }
     .color-palette { display: flex; gap: 10px; }
@@ -194,7 +224,6 @@
       align-items: center;
       gap: 14px;
     }
-    /* Khung màn hình khóa giả lập */
     .lockscreen-frame {
       width: 286px;
       height: 620px;
@@ -217,7 +246,6 @@
       inset: 0;
       background: rgba(0,0,0,0.35);
     }
-    /* Lớp Đồng hồ & Widget iOS */
     .ios-top-hud {
       position: absolute;
       top: 10px; left: 0; right: 0;
@@ -241,7 +269,6 @@
       font-weight: 600;
     }
 
-    /* Lớp Widget Lịch Tuần + Today Agenda di chuyển mượt bằng GPU */
     #gpuAgendaLayer {
       position: absolute;
       left: 14px;
@@ -315,9 +342,21 @@
         <span class="section-title">Thêm lịch trình vào ngày đã chọn</span>
       </div>
 
+      <!-- 2 Ô GIỜ BẮT ĐẦU & GIỜ KẾT THÚC TÁCH RIÊNG -->
+      <div class="time-split-row">
+        <div class="time-box">
+          <label>Giờ bắt đầu</label>
+          <input type="time" id="evStartTime" value="08:00">
+        </div>
+        <span style="color:var(--sub); font-weight:700;">➔</span>
+        <div class="time-box">
+          <label>Giờ kết thúc</label>
+          <input type="time" id="evEndTime" value="10:00">
+        </div>
+      </div>
+
       <div class="input-row">
-        <input type="text" id="evTime" class="time-input" placeholder="08:00–10:00" value="08:00–10:00">
-        <input type="text" id="evTitle" placeholder="Nội dung công việc..." maxlength="28">
+        <input type="text" id="evTitle" placeholder="Nhập nội dung công việc..." maxlength="28">
       </div>
 
       <div class="color-row">
@@ -363,12 +402,10 @@
   <div class="screen" id="screen-preview">
     <div class="studio-wrapper">
       
-      <!-- Khung Lockscreen mô phỏng trực tiếp -->
       <div class="lockscreen-frame" id="previewFrame">
         <div class="bg-layer" id="previewBgLayer"></div>
         <div class="bg-dim" id="previewDimLayer"></div>
 
-        <!-- Đồng hồ & Widget iOS -->
         <div class="ios-top-hud">
           <div class="dynamic-island"></div>
           <div class="hud-date" id="hudDateStr">Wed 11 Nov</div>
@@ -379,11 +416,9 @@
           </div>
         </div>
 
-        <!-- Lớp Lịch 1 Tuần + Today Agenda di chuyển mượt bằng GPU -->
         <div id="gpuAgendaLayer"></div>
       </div>
 
-      <!-- Thanh điều khiển không độ trễ -->
       <div class="studio-controls">
         <div class="slider-row">
           <span>Vị trí dọc</span>
@@ -404,7 +439,6 @@
     </div>
   </div>
 
-  <!-- Canvas ẩn độ phân giải chuẩn Retina (1290 x 2796) chỉ chạy khi bấm Xuất ảnh -->
   <canvas id="exportCanvas" width="1290" height="2796" style="display:none;"></canvas>
 
 <script>
@@ -439,7 +473,7 @@ function getLunarSpecialLabel(dateObj) {
   const lunarDay = currentJd - nm + 1;
   const daysInLunarMonth = nextNm - nm;
   if (lunarDay === 1) return 'M.1';
-  if (lunarDay === daysInLunarMonth) return String(lunarDay); // 29 hoặc 30 cuối tháng âm
+  if (lunarDay === daysInLunarMonth) return String(lunarDay);
   return '';
 }
 
@@ -451,17 +485,14 @@ let todayDate = new Date();
 let viewYear = todayDate.getFullYear();
 let viewMonth = todayDate.getMonth();
 
-// Chọn nhóm ngày (Range selection)
 let rangeStartISO = toISO(todayDate);
 let rangeEndISO = toISO(todayDate);
 let isSelectingSecondTap = false;
 
-// Ngày được lấy làm tâm điểm cho tuần và danh sách Today trên Lockscreen
 let focusDateISO = toISO(todayDate);
 let selectedColor = '#3897F0';
 let customBgDataUrl = localStorage.getItem('ls_bg_img') || null;
 
-// Khởi tạo dữ liệu mẫu giống hệt ảnh mẫu nếu mở lần đầu
 let eventsData = JSON.parse(localStorage.getItem('ls_week_events') || 'null');
 let remindersData = JSON.parse(localStorage.getItem('ls_week_reminders') || 'null');
 
@@ -514,13 +545,11 @@ function changeMonth(delta) {
 
 function onTapCalendarDate(iso) {
   if (!isSelectingSecondTap) {
-    // Chạm lần 1: Đặt ngày bắt đầu
     rangeStartISO = iso;
     rangeEndISO = iso;
     focusDateISO = iso;
     isSelectingSecondTap = true;
   } else {
-    // Chạm lần 2: Quét chọn cả nhóm ngày
     if (iso < rangeStartISO) {
       rangeEndISO = rangeStartISO;
       rangeStartISO = iso;
@@ -550,7 +579,7 @@ function renderInteractiveCalendar() {
   grid.innerHTML = '';
 
   const firstDay = new Date(viewYear, viewMonth, 1);
-  const startOffset = (firstDay.getDay() + 6) % 7; // Thứ 2 = 0
+  const startOffset = (firstDay.getDay() + 6) % 7;
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
 
   const focusMonday = getMondayOfWeek(fromISO(focusDateISO));
@@ -559,7 +588,6 @@ function renderInteractiveCalendar() {
   const weekStartISO = toISO(focusMonday);
   const weekEndISO = toISO(focusSunday);
 
-  // Ô trống đầu tháng
   for (let i = 0; i < startOffset; i++) {
     const empty = document.createElement('div');
     empty.className = 'cal-cell other-month';
@@ -572,13 +600,11 @@ function renderInteractiveCalendar() {
     const cell = document.createElement('div');
     cell.className = 'cal-cell';
 
-    // Tô sáng nhóm ngày đang chọn
     if (iso === rangeStartISO && iso === rangeEndISO) cell.classList.add('range-single');
     else if (iso === rangeStartISO) cell.classList.add('range-start');
     else if (iso === rangeEndISO) cell.classList.add('range-end');
     else if (iso > rangeStartISO && iso < rangeEndISO) cell.classList.add('in-range');
 
-    // Gạch chân xanh lá cho tuần đang hiển thị ra Lockscreen
     if (iso >= weekStartISO && iso <= weekEndISO) {
       cell.classList.add('active-week-indicator');
     }
@@ -604,7 +630,7 @@ function renderInteractiveCalendar() {
   }
 }
 
-// ================= 5. THÊM / XÓA SỰ KIỆN & REMINDERS =================
+// ================= 5. THÊM / XÓA SỰ KIỆN VỚI 2 Ô GIỜ RIÊNG BIỆT =================
 function selectColor(color, el) {
   selectedColor = color;
   document.querySelectorAll('.c-swatch').forEach(s => s.classList.remove('active'));
@@ -612,8 +638,11 @@ function selectColor(color, el) {
 }
 
 function addEventToRange() {
-  const timeStr = document.getElementById('evTime').value.trim() || 'Cả ngày';
+  const startT = document.getElementById('evStartTime').value;
+  const endT = document.getElementById('evEndTime').value;
+  const timeStr = (startT && endT) ? `${startT}–${endT}` : (startT || 'Cả ngày');
   const titleStr = document.getElementById('evTitle').value.trim();
+
   if (!titleStr) return alert('Bạn hãy nhập nội dung công việc nhé!');
 
   eventsData.push({
@@ -701,7 +730,7 @@ function renderRemindersList() {
   `).join('');
 }
 
-// ================= 6. XEM TRƯỚC MÀN HÌNH KHÓA (1 TUẦN + TODAY + REMINDERS) =================
+// ================= 6. XEM TRƯỚC MÀN HÌNH KHÓA =================
 function handleBgUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -728,7 +757,6 @@ function updateGpuPosition() {
   document.getElementById('previewDimLayer').style.background = `rgba(0,0,0,${dim})`;
 }
 
-// Tạo giao diện 1 Tuần + Today Agenda giống ảnh mẫu trên màn hình Preview
 function renderLockscreenPreviewDOM() {
   applyBgPreview();
   const focusDate = fromISO(focusDateISO);
@@ -739,7 +767,6 @@ function renderLockscreenPreviewDOM() {
   const dowIndex = (focusDate.getDay() + 6) % 7;
   document.getElementById('hudDateStr').textContent = `${dayNames[dowIndex]} ${focusDate.getDate()} ${monthNames[focusDate.getMonth()]}`;
 
-  // 1. Hàng Lịch 1 Tuần (7 cột)
   let weekColsHtml = '';
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
@@ -773,7 +800,6 @@ function renderLockscreenPreviewDOM() {
     `;
   }
 
-  // 2. Mục Today (Danh sách công việc trong ngày Focus)
   const todayEvs = eventsData.filter(e => focusDateISO >= e.start && focusDateISO <= e.end)
                              .sort((a,b) => a.time.localeCompare(b.time));
 
@@ -784,7 +810,6 @@ function renderLockscreenPreviewDOM() {
     </div>
   `).join('') : `<div style="font-size:11px; color:rgba(255,255,255,0.5); margin-top:4px;">Không có lịch trình</div>`;
 
-  // 3. Mục Reminders
   const remindersHtml = remindersData.length > 0 ? `
     <div style="margin-top:12px;">
       <div style="font-size:12px; font-weight:700; color:#FF9F0A; margin-bottom:3px;">Reminders</div>
@@ -806,10 +831,9 @@ function renderLockscreenPreviewDOM() {
 async function exportHighResWallpaper() {
   const canvas = document.getElementById('exportCanvas');
   const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height; // 1290 x 2796
-  const scaleFactor = H / 620; // Tỷ lệ phóng từ khung Preview 620px lên 2796px (~4.51x)
+  const W = canvas.width, H = canvas.height;
+  const scaleFactor = H / 620;
 
-  // 1. Vẽ nền
   if (customBgDataUrl) {
     const img = new Image();
     img.src = customBgDataUrl;
@@ -829,7 +853,6 @@ async function exportHighResWallpaper() {
   ctx.fillStyle = `rgba(0,0,0,${dim})`;
   ctx.fillRect(0, 0, W, H);
 
-  // 2. Tọa độ bắt đầu theo thanh trượt Y
   const startY = parseInt(document.getElementById('sliderY').value, 10) * scaleFactor;
   const padX = 72;
   const contentW = W - padX * 2;
@@ -842,7 +865,6 @@ async function exportHighResWallpaper() {
 
   let maxWeekBottomY = startY + 120;
 
-  // 3. Vẽ 7 cột Lịch Tuần + Các thẻ màu (Pills)
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
@@ -851,19 +873,16 @@ async function exportHighResWallpaper() {
     const lunarBadge = getLunarSpecialLabel(d);
     const colX = padX + i * (colW + colGap);
 
-    // Thứ (Mon, Tue...)
     ctx.font = `${isFocus ? '700' : '500'} 40px -apple-system, sans-serif`;
     ctx.fillStyle = isFocus ? '#FFFFFF' : 'rgba(255,255,255,0.78)';
     ctx.textAlign = 'center';
     ctx.fillText(dayNames[i], colX + colW / 2, startY);
 
-    // Số ngày Dương + Nhãn Âm lịch (nếu là Mùng 1 hoặc 29/30)
     const dayLabel = lunarBadge ? `${d.getDate()} (${lunarBadge})` : `${d.getDate()}`;
     ctx.font = `700 ${lunarBadge ? '34px' : '42px'} -apple-system, sans-serif`;
     ctx.fillStyle = isFocus ? '#0A84FF' : (lunarBadge ? '#FF9F0A' : '#FFFFFF');
     ctx.fillText(dayLabel, colX + colW / 2, startY + 48);
 
-    // Các khối màu sự kiện dưới mỗi ngày
     const dayEvs = eventsData.filter(e => iso >= e.start && iso <= e.end)
                               .sort((a,b) => a.time.localeCompare(b.time));
     let pillY = startY + 70;
@@ -892,7 +911,6 @@ async function exportHighResWallpaper() {
     if (pillY > maxWeekBottomY) maxWeekBottomY = pillY;
   }
 
-  // 4. Vẽ mục "Today" (Daily Agenda)
   let curY = maxWeekBottomY + 75;
   ctx.textAlign = 'left';
   ctx.font = '700 62px -apple-system, sans-serif';
@@ -920,7 +938,6 @@ async function exportHighResWallpaper() {
     });
   }
 
-  // 5. Vẽ mục "Reminders"
   if (remindersData.length > 0) {
     curY += 35;
     ctx.font = '700 56px -apple-system, sans-serif';
@@ -936,7 +953,6 @@ async function exportHighResWallpaper() {
     });
   }
 
-  // 6. Gọi iOS Share Sheet để đẩy qua Shortcut đặt hình nền
   canvas.toBlob(blob => {
     const file = new File([blob], 'lockscreen_agenda.png', { type: 'image/png' });
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -950,7 +966,6 @@ async function exportHighResWallpaper() {
   }, 'image/png', 1.0);
 }
 
-// Khởi chạy ban đầu
 renderInteractiveCalendar();
 renderEventsList();
 renderRemindersList();
