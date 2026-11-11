@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tạo Lịch Màn Hình Khóa iPhone</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #38bdf8;
+      --text: #f8fafc;
+      --subtext: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 16px; display: flex; flex-direction: column; align-items: center; }
+    .container { max-width: 440px; width: 100%; display: flex; flex-direction: column; gap: 14px; }
+    
+    .card { background: var(--card); border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); }
+    h1 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+    p.desc { font-size: 0.8rem; color: var(--subtext); margin-bottom: 12px; }
+
+    .control-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    label { font-size: 0.75rem; color: var(--subtext); margin-bottom: 4px; display: block; }
+    input, select { width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px 10px; border-radius: 8px; font-size: 0.85rem; }
+    
+    .btn { background: var(--accent); color: #04121e; border: none; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; width: 100%; cursor: pointer; text-align: center; }
+    .btn:active { opacity: 0.8; }
+    .btn-secondary { background: #334155; color: white; margin-top: 8px; }
+
+    .preview-box { width: 100%; aspect-ratio: 9/19.5; background: #000; border-radius: 28px; overflow: hidden; position: relative; border: 2px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    canvas { width: 100%; height: 100%; object-fit: cover; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card">
+    <h1>Tạo Lịch Màn Hình Khóa</h1>
+    <p class="desc">Chống che thông báo iOS • Chỉ hiện Âm lịch ngày Mùng 1 & 29/30</p>
+    
+    <div class="control-row">
+      <div>
+        <label>Tháng / Năm</label>
+        <input type="month" id="monthPicker">
+      </div>
+      <div>
+        <label>Độ mờ bảng lịch</label>
+        <select id="bgOpacity">
+          <option value="0">Trong suốt (Không nền)</option>
+          <option value="0.25" selected>Mờ nhẹ (Kính mờ)</option>
+          <option value="0.5">Mờ rõ</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="control-row">
+      <div>
+        <label>Tải ảnh nền của bạn</label>
+        <input type="file" id="bgUploader" accept="image/*">
+      </div>
+      <div>
+        <label>Màu chữ lịch</label>
+        <select id="textColor">
+          <option value="#FFFFFF" selected>Trắng tinh</option>
+          <option value="#E2E8F0">Trắng khói</option>
+          <option value="#FDE047">Vàng nhạt</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn" id="renderBtn">Cập nhật bản xem trước</button>
+    <button class="btn btn-secondary" id="downloadBtn">Tải ảnh nền về máy</button>
+  </div>
+
+  <!-- Khung xem trước mô phỏng màn hình iPhone -->
+  <div class="preview-box">
+    <canvas id="wallpaperCanvas" width="1290" height="2796"></canvas>
+  </div>
+</div>
+
+<script>
+// Thuật toán chuyển đổi Dương lịch sang Âm lịch gọn nhẹ cho Việt Nam (Múi giờ GMT+7)
+function getLunarDate(dd, mm, yyyy) {
+  // Bảng chu kỳ sóc trăng tham chiếu nhanh cho tính toán mốc đầu/cuối tháng
+  const baseDate = new Date(1900, 0, 31);
+  const targetDate = new Date(yyyy, mm - 1, dd);
+  let dayOffset = Math.floor((targetDate - baseDate) / 86400000);
+  
+  // Dữ liệu thiên văn rút gọn các năm gần nhất
+  const LUNAR_INFO = [
+    0x0a950, 0x0b4a0, 0x0baa0, 0x0ad50, 0x055d0, 0x04ba0, 0x0a5b0, 0x15176, 0x052b0, 0x0a930,
+    0x07954, 0x06aa0, 0x0ad50, 0x05b52, 0x04b60, 0x0a6e6, 0x0a4e0, 0x0d260, 0x0ea65, 0x0d530,
+    0x05aa0, 0x076a3, 0x096d0, 0x04bd7, 0x04ad0, 0x0a4d0, 0x1d0b6, 0x0d250, 0x0d520, 0x0dd45,
+    0x0b5a0, 0x056d0, 0x055b2, 0x049b0, 0x0a577, 0x0a4b0, 0x0aa50, 0x1b255, 0x06d20, 0x0ada0,
+    0x14b63, 0x09370, 0x049f8, 0x04970, 0x064b0, 0x168a6, 0x0ea50, 0x06b20, 0x1a6c4, 0x0aae0,
+    0x092e0, 0x0d2e3, 0x0c960, 0x0d557, 0x0d4a0, 0x0da50, 0x05d55, 0x056a0, 0x0a6d0, 0x055d4,
+    0x052d0, 0x0a9b8, 0x0a950, 0x0b4a0, 0x0b6a6, 0x0ad50, 0x055a0, 0x0aba4, 0x0a5b0, 0x052b0,
+    0x0b273, 0x06930, 0x07337, 0x06aa0, 0x0ad50, 0x14b55, 0x04b60, 0x0a570, 0x054e4, 0x0d160,
+    0x0e968, 0x0d520, 0x0daa0, 0x16aa6, 0x056d0, 0x04ae0, 0x0a9d4, 0x0a2d0, 0x0d150, 0x0f252,
+    0x0d520
+  ];
+
+  let year = 1900, tempDays = 0;
+  for (let i = 0; i < LUNAR_INFO.length && dayOffset > 0; i++) {
+    tempDays = 348;
+    for (let j = 0x8000; j > 0x8; j >>= 1) tempDays += (LUNAR_INFO[i] & j) ? 1 : 0;
+    const leap = LUNAR_INFO[i] & 0xf;
+    if (leap > 0) tempDays += (LUNAR_INFO[i] & 0x10000) ? 30 : 29;
+    if (dayOffset < tempDays) break;
+    dayOffset -= tempDays;
+    year++;
+  }
+
+  let month = 1, isLeap = false;
+  const leapMonth = LUNAR_INFO[year - 1900] & 0xf;
+  for (let m = 1; m <= 12; m++) {
+    let daysInMonth = (LUNAR_INFO[year - 1900] & (0x10000 >> m)) ? 30 : 29;
+    if (dayOffset < daysInMonth) { month = m; break; }
+    dayOffset -= daysInMonth;
+    if (leapMonth === m) {
+      daysInMonth = (LUNAR_INFO[year - 1900] & 0x10000) ? 30 : 29;
+      if (dayOffset < daysInMonth) { isLeap = true; month = m; break; }
+      dayOffset -= daysInMonth;
+    }
+  }
+  const day = dayOffset + 1;
+  const daysInCurrentLunarMonth = (LUNAR_INFO[year - 1900] & (0x10000 >> month)) ? 30 : 29;
+  const isLastDay = (day === daysInCurrentLunarMonth);
+
+  return { day, month, isLastDay };
+}
+
+const canvas = document.getElementById('wallpaperCanvas');
+const ctx = canvas.getContext('2d');
+let customImage = null;
+
+// Khởi tạo tháng hiện tại
+const now = new Date();
+const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+document.getElementById('monthPicker').value = currentMonthStr;
+
+document.getElementById('bgUploader').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => { customImage = img; draw(); };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function draw() {
+  const [yyyy, mm] = document.getElementById('monthPicker').value.split('-').map(Number);
+  const textColor = document.getElementById('textColor').value;
+  const cardOpacity = parseFloat(document.getElementById('bgOpacity').value);
+
+  // 1. Vẽ Ảnh nền (hoặc gradient mặc định)
+  if (customImage) {
+    // Căn giữa và vẽ scale tỉ lệ cover
+    const scale = Math.max(canvas.width / customImage.width, canvas.height / customImage.height);
+    const x = (canvas.width - customImage.width * scale) / 2;
+    const y = (canvas.height - customImage.height * scale) / 2;
+    ctx.drawImage(customImage, x, y, customImage.width * scale, customImage.height * scale);
+  } else {
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, '#0f172a');
+    grad.addColorStop(0.5, '#1e1b4b');
+    grad.addColorStop(1, '#020617');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // Phủ lớp vignette tối nhẹ để nổi bật chữ
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // 2. Vị trí "SAFE ZONE" (Nằm dưới đồng hồ iOS, trên khu vực thông báo)
+  const boxX = 95;
+  const boxY = 620; // Bắt đầu ở điểm an toàn dưới cụm widget đồng hồ
+  const boxWidth = canvas.width - (boxX * 2);
+  const boxHeight = 720;
+
+  if (cardOpacity > 0) {
+    ctx.fillStyle = `rgba(15, 23, 42, ${cardOpacity})`;
+    ctx.beginPath();
+    ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 44);
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.stroke();
+  }
+
+  // 3. Tiêu đề Tháng
+  ctx.fillStyle = textColor;
+  ctx.font = '600 48px -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(`THÁNG ${mm} • ${yyyy}`, boxX + 60, boxY + 90);
+
+  // 4. Hàng tiêu đề thứ trong tuần (T2 -> CN)
+  const daysHeader = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  const colWidth = (boxWidth - 80) / 7;
+  const startGridX = boxX + 40;
+  let currentY = boxY + 160;
+
+  ctx.font = '500 28px -apple-system, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.textAlign = 'center';
+  daysHeader.forEach((d, i) => {
+    ctx.fillText(d, startGridX + i * colWidth + colWidth / 2, currentY);
+  });
+
+  // 5. Lưới ngày và Tính toán Âm lịch lọc
+  currentY += 50;
+  const firstDayIndex = (new Date(yyyy, mm - 1, 1).getDay() + 6) % 7; // Chuyển CN về cuối tuần
+  const totalDays = new Date(yyyy, mm, 0).getDate();
+
+  let col = firstDayIndex;
+  let rowY = currentY;
+
+  for (let day = 1; day <= totalDays; day++) {
+    const posX = startGridX + col * colWidth + colWidth / 2;
+    const posY = rowY;
+
+    // Kiểm tra Ngày Hôm Nay để vẽ vòng tròn nổi bật
+    const isToday = (day === now.getDate() && mm === (now.getMonth() + 1) && yyyy === now.getFullYear());
+    if (isToday) {
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.arc(posX, posY - 12, 38, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#04121e'; // Chữ màu đen khi ở trên vòng tròn
+    } else {
+      ctx.fillStyle = textColor;
+    }
+
+    // Vẽ Số ngày Dương
+    ctx.font = isToday ? '700 38px -apple-system, sans-serif' : '500 38px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(day, posX, posY);
+
+    // Tính ngày Âm lịch
+    const lunar = getLunarDate(day, mm, yyyy);
+
+    // BỘ LỌC ĐẶC BIỆT: Chỉ hiện khi là MÙNG 1 hoặc NGÀY CUỐI THÁNG (29/30)
+    if (lunar.day === 1 || lunar.isLastDay) {
+      ctx.font = '600 20px -apple-system, sans-serif';
+      ctx.fillStyle = isToday ? '#04121e' : '#f59e0b'; // Màu cam nổi bật nếu là ngày thường
+      const lunarText = (lunar.day === 1) ? `M.1` : `${lunar.day}`;
+      ctx.fillText(lunarText, posX, posY + 28);
+    }
+
+    col++;
+    if (col > 6) {
+      col = 0;
+      rowY += 92;
+    }
+  }
+}
+
+document.getElementById('renderBtn').addEventListener('click', draw);
+document.getElementById('monthPicker').addEventListener('change', draw);
+document.getElementById('bgOpacity').addEventListener('change', draw);
+document.getElementById('textColor').addEventListener('change', draw);
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.download = `Lockscreen_${document.getElementById('monthPicker').value}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+
+// Vẽ lần đầu khi mở trang
+window.onload = draw;
+</script>
+
+</body>
+</html>
