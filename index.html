@@ -3,510 +3,194 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Lockscreen Calendar Studio</title>
+  <title>Lockscreen Calendar & Planner</title>
   <style>
-    :root {
-      --ios-bg: #000000;
-      --ios-card: rgba(30, 30, 32, 0.75);
-      --ios-border: rgba(255, 255, 255, 0.15);
-      --ios-accent: #0A84FF;
-      --ios-text: #FFFFFF;
-      --ios-subtext: #8E8E93;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body {
-      background-color: var(--ios-bg);
-      color: var(--ios-text);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* MÀN HÌNH PREVIEW CHÍNH */
-    .viewport {
-      flex: 1;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      background: #111;
-    }
-
-    /* Khung giả lập iPhone */
-    .phone-stage {
-      height: 88vh;
-      aspect-ratio: 9 / 19.5;
-      position: relative;
-      border-radius: 48px;
-      overflow: hidden;
-      box-shadow: 0 0 0 4px #2c2c2e, 0 20px 50px rgba(0,0,0,0.8);
-      background: #000;
-    }
-
-    #wallpaperCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-    }
-
-    /* Lớp phủ giả lập iOS (Đồng hồ, Dynamic Island) */
-    .ios-overlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .dynamic-island {
-      width: 110px;
-      height: 32px;
-      background: #000;
-      border-radius: 20px;
-      margin-top: 10px;
-    }
-    .ios-date {
-      margin-top: 35px;
-      font-size: 15px;
-      font-weight: 500;
-      color: rgba(255,255,255,0.85);
-      letter-spacing: -0.2px;
-    }
-    .ios-clock {
-      font-size: 70px;
-      font-weight: 700;
-      line-height: 1;
-      margin-top: 2px;
-      color: rgba(255,255,255,0.9);
-      letter-spacing: -1.5px;
-    }
-    .notification-safe-guide {
-      position: absolute;
-      bottom: 25px;
-      font-size: 11px;
-      color: rgba(255,255,255,0.3);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    /* BOTTOM SHEET ĐIỀU KHIỂN CHUẨN IOS */
-    .controls-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0; right: 0;
-      background: var(--ios-card);
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
-      border-top: 0.5px solid var(--ios-border);
-      border-radius: 28px 28px 0 0;
-      padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .grabber {
-      width: 36px;
-      height: 4px;
-      background: rgba(255,255,255,0.25);
-      border-radius: 2px;
-      align-self: center;
-      margin-bottom: 2px;
-    }
-
-    /* Thanh Segmented chọn tab */
-    .segmented-tabs {
-      display: flex;
-      background: rgba(0, 0, 0, 0.4);
-      padding: 3px;
-      border-radius: 12px;
-    }
-    .tab-btn {
-      flex: 1;
-      padding: 7px 0;
-      border: none;
-      background: transparent;
-      color: var(--ios-subtext);
-      font-size: 13px;
-      font-weight: 600;
-      border-radius: 9px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .tab-btn.active {
-      background: rgba(255,255,255,0.18);
-      color: #fff;
-    }
-
+    :root { --ios-bg: #000; --ios-card: rgba(30, 30, 32, 0.75); --ios-border: rgba(255,255,255,0.15); --ios-accent: #0A84FF; --ios-text: #FFF; --ios-subtext: #8E8E93; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { background: var(--ios-bg); color: var(--ios-text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    
+    .viewport { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; background: #111; }
+    .phone-stage { height: 86vh; aspect-ratio: 9/19.5; border-radius: 48px; position: relative; overflow: hidden; box-shadow: 0 0 0 4px #2c2c2e; }
+    #wallpaperCanvas { width: 100%; height: 100%; object-fit: cover; }
+    
+    .ios-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
+    .dynamic-island { width: 110px; height: 32px; background: #000; border-radius: 20px; margin-top: 10px; }
+    .ios-clock { font-size: 70px; font-weight: 700; margin-top: 35px; letter-spacing: -1.5px; color: rgba(255,255,255,0.9); }
+    
+    .controls-panel { position: fixed; bottom: 0; width: 100%; background: var(--ios-card); backdrop-filter: blur(30px); border-radius: 28px 28px 0 0; padding: 14px 20px 30px; display: flex; flex-direction: column; gap: 12px; z-index: 100; }
+    .segmented-tabs { display: flex; background: rgba(0,0,0,0.4); padding: 3px; border-radius: 12px; }
+    .tab-btn { flex: 1; padding: 8px 0; border: none; background: transparent; color: var(--ios-subtext); font-weight: 600; border-radius: 9px; }
+    .tab-btn.active { background: rgba(255,255,255,0.18); color: #fff; }
     .tab-content { display: none; flex-direction: column; gap: 10px; }
     .tab-content.active { display: flex; }
-
-    /* Dòng công cụ */
-    .control-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .control-row label {
-      font-size: 13px;
-      color: var(--ios-subtext);
-      font-weight: 500;
-      min-width: 80px;
-    }
-
-    /* Thanh trượt iOS */
-    input[type="range"] {
-      flex: 1;
-      accent-color: var(--ios-accent);
-      height: 6px;
-      border-radius: 3px;
-      background: rgba(255,255,255,0.15);
-      outline: none;
-    }
-
-    /* Dot màu */
-    .color-picker {
-      display: flex;
-      gap: 10px;
-    }
-    .color-dot {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      cursor: pointer;
-    }
-    .color-dot.active {
-      border-color: #fff;
-      transform: scale(1.1);
-    }
-
-    /* Các nút hành động */
-    .actions-grid {
-      display: grid;
-      grid-template-columns: 1fr 1.4fr;
-      gap: 10px;
-      margin-top: 4px;
-    }
-    .btn-ios {
-      padding: 12px;
-      border-radius: 14px;
-      border: none;
-      font-size: 15px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-    .btn-secondary {
-      background: rgba(255,255,255,0.12);
-      color: #fff;
-    }
-    .btn-primary {
-      background: var(--ios-accent);
-      color: #fff;
-    }
-    .btn-ios:active { opacity: 0.7; }
+    
+    .control-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .control-row label { font-size: 13px; color: var(--ios-subtext); font-weight: 500; min-width: 75px; }
+    input[type="range"] { flex: 1; accent-color: var(--ios-accent); height: 6px; }
+    input[type="text"], input[type="date"] { background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 8px; border-radius: 8px; width: 100%; }
+    
+    .btn-action { background: var(--ios-accent); color: #fff; padding: 14px; border-radius: 14px; border: none; font-weight: 600; font-size: 16px; width: 100%; display: flex; align-items: center; justify-content: center; margin-top: 5px; }
+    .btn-small { background: #34C759; color: #fff; padding: 8px 12px; border-radius: 8px; border: none; font-weight: 600; }
   </style>
 </head>
 <body>
 
-  <!-- VÙNG PREVIEW MÔ PHỎNG IPHONE -->
   <div class="viewport">
     <div class="phone-stage">
       <canvas id="wallpaperCanvas" width="1290" height="2796"></canvas>
-
-      <!-- Mockup iOS để căn chỉnh không bao giờ bị lệch -->
       <div class="ios-overlay" id="iosOverlay">
         <div class="dynamic-island"></div>
-        <div class="ios-date" id="mockupDate">Thứ Tư, 11 tháng 11</div>
         <div class="ios-clock">09:41</div>
-        <div class="notification-safe-guide">▲ Lưới lịch an toàn • Vùng thông báo bên dưới ▼</div>
       </div>
     </div>
   </div>
 
-  <!-- BẢNG ĐIỀU KHIỂN NATIVE BOTTOM SHEET -->
   <div class="controls-panel">
-    <div class="grabber"></div>
-
     <div class="segmented-tabs">
-      <button class="tab-btn active" onclick="switchTab('pos')">Bố cục & Vị trí</button>
-      <button class="tab-btn" onclick="switchTab('style')">Màu & Kiểu dáng</button>
-      <button class="tab-btn" onclick="switchTab('time')">Tháng & Nền</button>
+      <button class="tab-btn active" onclick="switchTab('plan')">Kế hoạch</button>
+      <button class="tab-btn" onclick="switchTab('design')">Thiết kế</button>
     </div>
 
-    <!-- Tab 1: Vị trí & Cỡ lịch -->
-    <div class="tab-content active" id="tab-pos">
+    <!-- TAB 1: KẾ HOẠCH (Thêm sự kiện) -->
+    <div class="tab-content active" id="tab-plan">
+      <div class="control-row">
+        <input type="date" id="eventDate" style="flex: 1;">
+        <input type="text" id="eventText" placeholder="Ghi chú (Tối đa 7 chữ)" maxlength="12" style="flex: 2;">
+        <button class="btn-small" onclick="addEvent()">Lưu</button>
+      </div>
+      <div style="font-size: 12px; color: #FF9F0A;">* Dữ liệu tự động lưu trên máy. Để xoá, nhập ngày và để trống ô Ghi chú rồi bấm Lưu.</div>
+    </div>
+
+    <!-- TAB 2: THIẾT KẾ -->
+    <div class="tab-content" id="tab-design">
       <div class="control-row">
         <label>Vị trí Y</label>
-        <input type="range" id="posY" min="500" max="1400" value="680">
+        <input type="range" id="posY" min="500" max="1400" value="680" oninput="render()">
       </div>
       <div class="control-row">
-        <label>Độ lớn</label>
-        <input type="range" id="scale" min="80" max="120" value="100">
+        <label>Tháng</label>
+        <input type="month" id="monthPicker" onchange="render()">
+        <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="loadBg(event)">
+        <button class="btn-small" style="background: rgba(255,255,255,0.2);" onclick="document.getElementById('fileInput').click()">Đổi Nền</button>
       </div>
     </div>
 
-    <!-- Tab 2: Màu sắc & Khung mờ -->
-    <div class="tab-content" id="tab-style">
-      <div class="control-row">
-        <label>Màu chữ</label>
-        <div class="color-picker">
-          <div class="color-dot active" style="background: #FFFFFF;" onclick="setColor('#FFFFFF', this)"></div>
-          <div class="color-dot" style="background: #F2E8CF;" onclick="setColor('#F2E8CF', this)"></div>
-          <div class="color-dot" style="background: #FED166;" onclick="setColor('#FED166', this)"></div>
-          <div class="color-dot" style="background: #B8C0FF;" onclick="setColor('#B8C0FF', this)"></div>
-        </div>
-      </div>
-      <div class="control-row">
-        <label>Độ mờ kính</label>
-        <input type="range" id="cardOpacity" min="0" max="50" value="18">
-      </div>
-    </div>
-
-    <!-- Tab 3: Chọn tháng & Ảnh nền -->
-    <div class="tab-content" id="tab-time">
-      <div class="control-row">
-        <label>Chọn tháng</label>
-        <input type="month" id="monthPicker" style="background: rgba(255,255,255,0.1); border:none; color:#fff; padding:6px 10px; border-radius:8px; font-size:13px;">
-      </div>
-      <div class="control-row">
-        <label>Lưới ngày</label>
-        <span style="font-size: 12px; color: #34C759; font-weight: 500;">✓ Mùng 1 & 29/30 Âm Lịch</span>
-      </div>
-    </div>
-
-    <!-- Cụm nút hành động chính -->
-    <div class="actions-grid">
-      <input type="file" id="fileInput" accept="image/*" style="display: none;">
-      <button class="btn-ios btn-secondary" onclick="document.getElementById('fileInput').click()">
-        Đổi ảnh nền
-      </button>
-      <button class="btn-ios btn-primary" id="saveBtn">
-        Lưu hình nền HD
-      </button>
-    </div>
+    <button class="btn-action" id="shareBtn" onclick="exportToLockscreen()">
+      ⇡ Cập nhật ra Màn hình khóa
+    </button>
   </div>
 
 <script>
-// THUẬT TOÁN ÂM LỊCH VIỆT NAM CHUẨN XÁC (Múi giờ GMT+7)
-function jdFromDate(d, m, y) {
-  const a = Math.floor((14 - m) / 12);
-  const y2 = y + 4800 - a;
-  const m2 = m + 12 * a - 3;
-  return d + Math.floor((153 * m2 + 2) / 5) + 365 * y2 + Math.floor(y2 / 4) - Math.floor(y2 / 100) + Math.floor(y2 / 400) - 32045;
-}
-
-function getNewMoonDay(k, timeZone = 7) {
-  const T = k / 1236.85;
-  const T2 = T * T;
-  const T3 = T2 * T;
-  const dr = Math.PI / 180;
-  let Jd1 = 2415020.75933 + 29.53058868 * k + 0.0001178 * T2 - 0.000000155 * T3;
-  Jd1 += 0.00033 * Math.sin((166.56 + 132.87 * T - 0.009173 * T2) * dr);
-  const M = 359.2242 + 29.10535608 * k - 0.0000333 * T2 - 0.00000347 * T3;
-  const Mpr = 306.0253 + 385.81691806 * k + 0.0107306 * T2 + 0.00001236 * T3;
-  const F = 21.2964 + 390.67050646 * k - 0.0016528 * T2 - 0.00000239 * T3;
-  const C1 = (0.1734 - 0.000393 * T) * Math.sin(M * dr) + 0.0021 * Math.sin(2 * dr * M);
-  const C2 = -0.4068 * Math.sin(Mpr * dr) + 0.0161 * Math.sin(2 * dr * Mpr);
-  const C3 = -0.0051 * Math.sin((M + Mpr) * dr);
-  const C4 = 0.0104 * Math.sin(2 * F * dr) - 0.0074 * Math.sin((M - Mpr) * dr) - 0.0004 * Math.sin(2 * F * dr + M * dr);
-  const Jd = Jd1 + C1 + C2 + C3 + C4;
-  return Math.floor(Jd + 0.5 + timeZone / 24);
-}
-
-function getLunarDateVN(dd, mm, yyyy) {
-  const currentJd = jdFromDate(dd, mm, yyyy);
-  const k = Math.floor((currentJd - 2415021.076998695) / 29.530588853);
-  let nm = getNewMoonDay(k);
-  if (nm > currentJd) nm = getNewMoonDay(k - 1);
-  const nextNm = getNewMoonDay(k + 1);
-  const day = currentJd - nm + 1;
-  const daysInMonth = (nextNm > currentJd ? nextNm : getNewMoonDay(k + 2)) - nm;
-  return { day, isLastDay: (day === daysInMonth || day === 29 || day === 30) };
-}
-
-// LOGIC RENDER & GIAO DIỆN
 const canvas = document.getElementById('wallpaperCanvas');
 const ctx = canvas.getContext('2d');
 let bgImage = null;
-let activeColor = '#FFFFFF';
+let events = JSON.parse(localStorage.getItem('lockscreen_events') || '{}');
 
 const now = new Date();
 document.getElementById('monthPicker').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+document.getElementById('eventDate').value = now.toISOString().split('T')[0];
 
-function switchTab(tabId) {
+function switchTab(id) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   event.target.classList.add('active');
-  document.getElementById(`tab-${tabId}`).classList.add('active');
+  document.getElementById(`tab-${id}`).classList.add('active');
 }
 
-function setColor(c, el) {
-  activeColor = c;
-  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-  el.classList.add('active');
+function loadBg(e) {
+  if (!e.target.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = ev => { const img = new Image(); img.onload = () => { bgImage = img; render(); }; img.src = ev.target.result; };
+  reader.readAsDataURL(e.target.files[0]);
+}
+
+function addEvent() {
+  const dateStr = document.getElementById('eventDate').value;
+  const text = document.getElementById('eventText').value.trim();
+  if (text) { events[dateStr] = text; } 
+  else { delete events[dateStr]; }
+  localStorage.setItem('lockscreen_events', JSON.stringify(events));
   render();
 }
-
-document.getElementById('fileInput').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const img = new Image();
-    img.onload = () => { bgImage = img; render(); };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-});
 
 function render() {
   const [yyyy, mm] = document.getElementById('monthPicker').value.split('-').map(Number);
   const startY = parseInt(document.getElementById('posY').value, 10);
-  const scaleRatio = parseInt(document.getElementById('scale').value, 10) / 100;
-  const glassOpacity = parseInt(document.getElementById('cardOpacity').value, 10) / 100;
-
-  // 1. Vẽ Ảnh Nền chuẩn Cover
+  
   if (bgImage) {
     const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
     const x = (canvas.width - bgImage.width * scale) / 2;
     const y = (canvas.height - bgImage.height * scale) / 2;
     ctx.drawImage(bgImage, x, y, bgImage.width * scale, bgImage.height * scale);
   } else {
-    // Gradient đêm tối giản mặc định
-    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grad.addColorStop(0, '#1c1917');
-    grad.addColorStop(0.5, '#0c0a09');
-    grad.addColorStop(1, '#000000');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.35)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Lớp tối nhẹ tăng tương phản
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const baseWidth = 1100, baseHeight = 850, boxX = (canvas.width - baseWidth) / 2, boxY = startY;
+  
+  // Khung mờ
+  ctx.fillStyle = 'rgba(20, 20, 25, 0.4)'; ctx.beginPath(); ctx.roundRect(boxX, boxY, baseWidth, baseHeight, 36); ctx.fill();
 
-  // 2. Tính toán khung Lịch
-  const baseWidth = 1100 * scaleRatio;
-  const baseHeight = 720 * scaleRatio;
-  const boxX = (canvas.width - baseWidth) / 2;
-  const boxY = startY;
+  ctx.fillStyle = '#fff'; ctx.font = '700 36px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(`THÁNG ${mm} • ${yyyy}`, boxX + 50, boxY + 70);
 
-  // Vẽ nền Kính mờ (Frosted Card)
-  if (glassOpacity > 0) {
-    ctx.save();
-    ctx.fillStyle = `rgba(255, 255, 255, ${glassOpacity})`;
-    ctx.beginPath();
-    ctx.roundRect(boxX, boxY, baseWidth, baseHeight, 36 * scaleRatio);
-    ctx.fill();
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  // 3. Tiêu đề Tháng & Năm
-  ctx.save();
-  ctx.fillStyle = activeColor;
-  ctx.font = `700 ${36 * scaleRatio}px -apple-system, sans-serif`;
-  ctx.textAlign = 'left';
-  ctx.letterSpacing = '-0.5px';
-  ctx.fillText(`THÁNG ${mm} • ${yyyy}`, boxX + (50 * scaleRatio), boxY + (70 * scaleRatio));
-
-  // 4. Tiêu đề Thứ (T2 -> CN)
   const headers = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-  const colWidth = (baseWidth - (70 * scaleRatio)) / 7;
-  const gridStartX = boxX + (35 * scaleRatio);
-  let curY = boxY + (130 * scaleRatio);
+  const colWidth = (baseWidth - 70) / 7, gridStartX = boxX + 35;
+  let curY = boxY + 130;
 
-  ctx.font = `600 ${22 * scaleRatio}px -apple-system, sans-serif`;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-  ctx.textAlign = 'center';
-  headers.forEach((h, i) => {
-    ctx.fillText(h, gridStartX + i * colWidth + colWidth / 2, curY);
-  });
+  ctx.font = '600 22px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.textAlign = 'center';
+  headers.forEach((h, i) => ctx.fillText(h, gridStartX + i * colWidth + colWidth / 2, curY));
 
-  // 5. Lưới ngày & Âm lịch
-  curY += (45 * scaleRatio);
-  const firstDay = (new Date(yyyy, mm - 1, 1).getDay() + 6) % 7;
+  curY += 45;
   const totalDays = new Date(yyyy, mm, 0).getDate();
-
-  let col = firstDay;
-  let rowY = curY;
+  let col = (new Date(yyyy, mm - 1, 1).getDay() + 6) % 7, rowY = curY;
 
   for (let d = 1; d <= totalDays; d++) {
     const cellX = gridStartX + col * colWidth + colWidth / 2;
-    const isToday = (d === now.getDate() && mm === (now.getMonth() + 1) && yyyy === now.getFullYear());
+    const isToday = (d === now.getDate() && mm === (now.getMonth()+1) && yyyy === now.getFullYear());
+    const dateKey = `${yyyy}-${String(mm).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 
-    // Highlight ngày hôm nay
-    if (isToday) {
-      ctx.fillStyle = '#0A84FF';
-      ctx.beginPath();
-      ctx.arc(cellX, rowY - (10 * scaleRatio), 32 * scaleRatio, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#FFFFFF';
-    } else {
-      ctx.fillStyle = activeColor;
-    }
+    if (isToday) { ctx.fillStyle = '#0A84FF'; ctx.beginPath(); ctx.arc(cellX, rowY - 10, 32, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#fff'; }
+    else { ctx.fillStyle = '#fff'; }
 
-    // Ngày Dương lịch
-    ctx.font = isToday ? `700 ${34 * scaleRatio}px -apple-system, sans-serif` : `500 ${34 * scaleRatio}px -apple-system, sans-serif`;
-    ctx.textAlign = 'center';
+    ctx.font = isToday ? '700 34px sans-serif' : '500 34px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(d, cellX, rowY);
 
-    // Tính ngày Âm lịch
-    const lunar = getLunarDateVN(d, mm, yyyy);
-
-    // CHỈ HIỂN THỊ MÙNG 1 VÀ NGÀY CUỐI THÁNG (29/30)
-    if (lunar.day === 1 || lunar.isLastDay) {
-      ctx.font = `600 ${18 * scaleRatio}px -apple-system, sans-serif`;
-      ctx.fillStyle = isToday ? '#FFFFFF' : '#FF9F0A'; // Cam nổi bật
-      const tag = (lunar.day === 1) ? 'M.1' : `${lunar.day}`;
-      ctx.fillText(tag, cellX, rowY + (24 * scaleRatio));
+    // VẼ SỰ KIỆN NẾU CÓ
+    if (events[dateKey]) {
+      ctx.fillStyle = '#32D74B'; // Màu xanh lá dạ quang cho sự kiện
+      ctx.font = '600 16px sans-serif';
+      ctx.fillText(events[dateKey], cellX, rowY + 25);
     }
 
-    col++;
-    if (col > 6) {
-      col = 0;
-      rowY += (85 * scaleRatio);
-    }
+    col++; if (col > 6) { col = 0; rowY += 105; } // Nới rộng dòng để đủ chỗ ghi chú
   }
-  ctx.restore();
 }
 
-// Bắt sự kiện Slider mượt mà
-['posY', 'scale', 'cardOpacity'].forEach(id => {
-  document.getElementById(id).addEventListener('input', render);
-});
-document.getElementById('monthPicker').addEventListener('change', render);
-
-// Nút Lưu ảnh chất lượng cao
-document.getElementById('saveBtn').addEventListener('click', () => {
-  // 1. Tạm ẩn overlay mockup iPhone
-  const overlay = document.getElementById('iosOverlay');
-  overlay.style.display = 'none';
-
-  // 2. Xuất ảnh
+// XUẤT ẢNH BẰNG SHARE SHEET IOS NATIVE
+function exportToLockscreen() {
+  document.getElementById('iosOverlay').style.display = 'none';
   setTimeout(() => {
-    const link = document.createElement('a');
-    link.download = `Lockscreen_${document.getElementById('monthPicker').value}.png`;
-    link.href = canvas.toDataURL('image/png', 1.0);
-    link.click();
-    overlay.style.display = 'flex';
+    canvas.toBlob(blob => {
+      const file = new File([blob], "lockscreen_calendar.png", { type: "image/png" });
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        navigator.share({
+          files: [file],
+          title: 'Cập nhật lịch',
+          text: 'Lịch màn hình khóa mới'
+        }).then(() => {
+          document.getElementById('iosOverlay').style.display = 'flex';
+        }).catch(err => { console.log(err); document.getElementById('iosOverlay').style.display = 'flex'; });
+      } else {
+        // Fallback nếu chạy trên máy tính
+        const a = document.createElement('a'); a.download = "lockscreen.png"; a.href = canvas.toDataURL(); a.click();
+        document.getElementById('iosOverlay').style.display = 'flex';
+      }
+    });
   }, 100);
-});
+}
 
-// Chạy lần đầu
 window.onload = render;
 </script>
 </body>
