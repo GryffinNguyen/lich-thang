@@ -3,308 +3,957 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Lockscreen Pro Planner</title>
+  <title>Lockscreen Week & Agenda Planner</title>
   <style>
-    :root { 
-      --ios-bg: #000000; --ios-card: #1c1c1e; --ios-card-2: #2c2c2e; 
-      --ios-accent: #0A84FF; --ios-text: #FFFFFF; --ios-subtext: #8E8E93;
-      --safe-bottom: env(safe-area-inset-bottom, 20px);
+    :root {
+      --bg: #000000;
+      --card: #1C1C1E;
+      --card2: #2C2C2E;
+      --accent: #0A84FF;
+      --text: #FFFFFF;
+      --sub: #8E8E93;
+      --border: rgba(255, 255, 255, 0.12);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--ios-bg); color: var(--ios-text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-    
-    /* HEADER (CHỌN THÁNG) */
-    .header { padding: 50px 20px 15px; background: var(--ios-card); border-bottom: 0.5px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 10;}
-    .header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
-    .month-selector { background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 8px 12px; border-radius: 8px; font-weight: 600; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
 
-    /* TAB BARS */
-    .tab-bar { display: flex; background: var(--ios-card); padding-bottom: var(--safe-bottom); border-top: 0.5px solid rgba(255,255,255,0.1); z-index: 10;}
-    .tab-item { flex: 1; padding: 12px 0; text-align: center; color: var(--ios-subtext); font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;}
-    .tab-item.active { color: var(--ios-accent); }
-    .tab-icon { font-size: 24px; }
+    /* THANH CHUYỂN MÀN HÌNH TÁCH BIỆT TRÊN CÙNG */
+    .top-nav {
+      padding: calc(env(safe-area-inset-top, 12px) + 8px) 16px 12px;
+      background: var(--card);
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 50;
+    }
+    .mode-switch {
+      display: flex;
+      background: #000;
+      padding: 3px;
+      border-radius: 12px;
+      width: 100%;
+    }
+    .mode-btn {
+      flex: 1;
+      padding: 9px 0;
+      border: none;
+      background: transparent;
+      color: var(--sub);
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 9px;
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: var(--card2);
+      color: #FFF;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
 
-    /* NỘI DUNG TABS */
-    .page { flex: 1; overflow-y: auto; display: none; flex-direction: column; background: var(--ios-bg); }
-    .page.active { display: flex; }
+    /* KHUNG TRANG ĐỘC LẬP */
+    .screen { flex: 1; overflow-y: auto; display: none; padding: 16px 16px calc(env(safe-area-inset-bottom, 20px) + 20px); }
+    .screen.active { display: block; }
 
-    /* PAGE 1: KẾ HOẠCH TRỰC QUAN */
-    .planner-container { padding: 20px; }
-    .card { background: var(--ios-card); border-radius: 16px; padding: 16px; margin-bottom: 20px; }
-    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-    .form-group label { font-size: 13px; color: var(--ios-subtext); font-weight: 500; }
-    .row-date { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    input[type="text"], input[type="date"] { background: var(--ios-card-2); border: none; color: #fff; padding: 12px; border-radius: 10px; font-size: 15px; width: 100%; }
-    
-    .color-picker { display: flex; gap: 12px; margin-top: 5px; }
-    .color-dot { width: 28px; height: 28px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
-    .color-dot.active { border-color: #fff; transform: scale(1.1); box-shadow: 0 0 10px rgba(255,255,255,0.2); }
-    
-    .btn-add { background: var(--ios-accent); color: #fff; border: none; padding: 14px; border-radius: 12px; font-weight: 600; font-size: 16px; width: 100%; margin-top: 10px; cursor: pointer;}
-    .btn-add:active { opacity: 0.8; }
+    /* ================= MÀN HÌNH 1: LẬP KẾ HOẠCH TRỰC QUAN ================= */
+    .section-card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 0.5px solid var(--border);
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .section-title { font-size: 16px; font-weight: 700; }
+    .hint-badge {
+      font-size: 11px;
+      background: rgba(10, 132, 255, 0.18);
+      color: #64D2FF;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
 
-    /* DANH SÁCH CÔNG VIỆC */
-    .task-list { display: flex; flex-direction: column; gap: 10px; }
-    .task-item { display: flex; align-items: center; justify-content: space-between; background: var(--ios-card); padding: 12px 16px; border-radius: 12px; }
-    .task-info { display: flex; flex-direction: column; gap: 4px; }
-    .task-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;}
-    .task-date { font-size: 13px; color: var(--ios-subtext); }
-    .task-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .btn-delete { background: rgba(255,69,58,0.15); color: #FF453A; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 13px; }
+    /* LƯỚI LỊCH CHỌN NHÓM NGÀY TRỰC QUAN */
+    .cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .cal-nav-btn { background: var(--card2); border: none; color: #fff; width: 34px; height: 34px; border-radius: 10px; font-size: 16px; font-weight: 700; }
+    .cal-month-label { font-size: 16px; font-weight: 700; }
 
-    /* PAGE 2: XEM TRƯỚC (CANVAS) */
-    .preview-container { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 20px; gap: 20px; overflow-y: auto;}
-    .phone-stage { width: 260px; height: 563px; /* Tỷ lệ 9:19.5 thu nhỏ */ border-radius: 36px; position: relative; overflow: hidden; box-shadow: 0 0 0 6px #2c2c2e; flex-shrink: 0;}
-    #wallpaperCanvas { width: 100%; height: 100%; object-fit: cover; }
-    .ios-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
-    .dynamic-island { width: 80px; height: 24px; background: #000; border-radius: 20px; margin-top: 8px; }
-    .ios-clock { font-size: 50px; font-weight: 700; margin-top: 25px; letter-spacing: -1.5px; color: rgba(255,255,255,0.9); }
+    .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 12px; color: var(--sub); font-weight: 600; margin-bottom: 8px; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 6px; }
     
-    .editor-controls { width: 100%; background: var(--ios-card); padding: 16px; border-radius: 16px; display: flex; flex-direction: column; gap: 16px; }
-    .control-row { display: flex; align-items: center; gap: 15px; }
-    .control-row label { font-size: 14px; font-weight: 500; color: var(--ios-subtext); min-width: 60px; }
-    input[type="range"] { flex: 1; accent-color: var(--ios-accent); height: 6px; }
-    
-    .btn-action-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
-    .btn-action { padding: 14px; border-radius: 12px; border: none; font-weight: 600; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .btn-secondary { background: var(--ios-card-2); color: #fff; }
-    .btn-primary { background: var(--ios-accent); color: #fff; grid-column: span 2; }
+    .cal-cell {
+      height: 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      font-size: 15px;
+      font-weight: 500;
+      border-radius: 10px;
+    }
+    .cal-cell.other-month { opacity: 0.25; }
+    .cal-cell.in-range { background: rgba(10, 132, 255, 0.28); border-radius: 0; }
+    .cal-cell.range-start { background: var(--accent); color: #fff; font-weight: 700; border-radius: 10px 0 0 10px; }
+    .cal-cell.range-end { background: var(--accent); color: #fff; font-weight: 700; border-radius: 0 10px 10px 0; }
+    .cal-cell.range-single { background: var(--accent); color: #fff; font-weight: 700; border-radius: 10px; }
+    .cal-cell.active-week-indicator::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      width: 14px;
+      height: 2px;
+      background: #30D158;
+      border-radius: 1px;
+    }
+    .lunar-mini { font-size: 9px; color: #FF9F0A; font-weight: 700; line-height: 1; margin-top: 2px; }
+    .cal-cell.range-start .lunar-mini, .cal-cell.range-end .lunar-mini, .cal-cell.range-single .lunar-mini { color: #FFF; }
+    .dot-row { display: flex; gap: 2px; margin-top: 2px; }
+    .mini-dot { width: 4px; height: 4px; border-radius: 50%; }
+
+    .range-status-bar {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: var(--card2);
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+    .btn-focus-day {
+      background: rgba(48, 209, 88, 0.2);
+      color: #30D158;
+      border: 1px solid rgba(48, 209, 88, 0.4);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* FORM THÊM SỰ KIỆN VÀO NHÓM NGÀY ĐÃ CHỌN */
+    .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    input[type="text"] {
+      background: var(--card2);
+      border: 1px solid transparent;
+      color: #fff;
+      padding: 11px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      width: 100%;
+      outline: none;
+    }
+    input[type="text"]:focus { border-color: var(--accent); }
+    .time-input { width: 135px !important; flex-shrink: 0; text-align: center; font-variant-numeric: tabular-nums; }
+
+    .color-row { display: flex; align-items: center; justify-content: space-between; margin: 12px 0; }
+    .color-palette { display: flex; gap: 10px; }
+    .c-swatch { width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid transparent; cursor: pointer; }
+    .c-swatch.active { border-color: #fff; transform: scale(1.12); }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary:active { opacity: 0.8; }
+
+    /* DANH SÁCH SỰ KIỆN & REMINDERS */
+    .event-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: var(--card2);
+      border-radius: 10px;
+      margin-top: 8px;
+      border-left: 4px solid var(--accent);
+    }
+    .event-meta { font-size: 12px; color: var(--sub); margin-top: 2px; }
+    .btn-del { background: rgba(255,69,58,0.2); color: #FF453A; border: none; padding: 5px 10px; border-radius: 7px; font-size: 12px; font-weight: 600; }
+
+    /* ================= MÀN HÌNH 2: XEM TRƯỚC LOCKSCREEN (TÁCH RIÊNG) ================= */
+    .studio-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    /* Khung màn hình khóa giả lập */
+    .lockscreen-frame {
+      width: 286px;
+      height: 620px;
+      border-radius: 42px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 0 5px #2C2C2E, 0 18px 40px rgba(0,0,0,0.85);
+      background: #111;
+      flex-shrink: 0;
+    }
+    .bg-layer {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      background-image: linear-gradient(180deg, #1e232a 0%, #121519 55%, #090a0c 100%);
+    }
+    .bg-dim {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+    }
+    /* Lớp Đồng hồ & Widget iOS */
+    .ios-top-hud {
+      position: absolute;
+      top: 10px; left: 0; right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .dynamic-island { width: 82px; height: 24px; background: #000; border-radius: 20px; margin-bottom: 12px; }
+    .hud-date { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); }
+    .hud-clock { font-size: 58px; font-weight: 700; line-height: 1.02; color: rgba(255,255,255,0.68); letter-spacing: -1.5px; }
+    .hud-widgets {
+      width: 86%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      color: rgba(255,255,255,0.8);
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    /* Lớp Widget Lịch Tuần + Today Agenda di chuyển mượt bằng GPU */
+    #gpuAgendaLayer {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      top: 0;
+      will-change: transform;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .studio-controls {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border-radius: 18px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 0.5px solid var(--border);
+    }
+    .slider-row { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--sub); }
+    .slider-row span { min-width: 72px; font-weight: 500; }
+    input[type="range"] { flex: 1; accent-color: var(--accent); }
+    .studio-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   </style>
 </head>
 <body>
 
-  <!-- HEADER DÙNG CHUNG -->
-  <div class="header">
-    <h1>Lịch Khóa</h1>
-    <input type="month" id="monthPicker" class="month-selector">
+  <!-- THANH CHUYỂN ĐỔI 2 MÀN HÌNH ĐỘC LẬP -->
+  <div class="top-nav">
+    <div class="mode-switch">
+      <button class="mode-btn active" id="btnModePlan" onclick="switchScreen('plan')">📅 Lịch & Ghi chú</button>
+      <button class="mode-btn" id="btnModePreview" onclick="switchScreen('preview')">📱 Xem trước Lockscreen</button>
+    </div>
   </div>
 
-  <!-- TAB 1: KẾ HOẠCH CÔNG VIỆC -->
-  <div id="page-planner" class="page active">
-    <div class="planner-container">
+  <!-- ================= MÀN HÌNH 1: LỊCH CHỌN NHÓM NGÀY & GHI CHÚ ================= -->
+  <div class="screen active" id="screen-plan">
+    
+    <!-- PHẦN 1: LƯỚI LỊCH CHỌN NHÓM NGÀY -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-title">Chọn ngày / Nhóm ngày</span>
+        <span class="hint-badge">Chạm 2 mốc để quét nhóm ngày</span>
+      </div>
+
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+        <div class="cal-month-label" id="calMonthTitle">Tháng 11 • 2026</div>
+        <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+      </div>
+
+      <div class="cal-weekdays">
+        <div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div><div>CN</div>
+      </div>
+      <div class="cal-grid" id="interactiveCalGrid"></div>
+
+      <div class="range-status-bar">
+        <div>
+          <div style="font-size:11px; color:var(--sub);">Đang chọn:</div>
+          <div style="font-weight:700; color:#64D2FF;" id="selectedRangeText">11/11/2026</div>
+        </div>
+        <button class="btn-focus-day" onclick="setAsFocusDay()">Đặt làm ngày "Today" trên nền</button>
+      </div>
+    </div>
+
+    <!-- PHẦN 2: THÊM CÔNG VIỆC VÀO NHÓM NGÀY ĐANG CHỌN -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-title">Thêm lịch trình vào ngày đã chọn</span>
+      </div>
+
+      <div class="input-row">
+        <input type="text" id="evTime" class="time-input" placeholder="08:00–10:00" value="08:00–10:00">
+        <input type="text" id="evTitle" placeholder="Nội dung công việc..." maxlength="28">
+      </div>
+
+      <div class="color-row">
+        <span style="font-size:13px; color:var(--sub);">Màu thẻ lịch:</span>
+        <div class="color-palette" id="colorPalette">
+          <div class="c-swatch active" style="background:#3897F0;" onclick="selectColor('#3897F0', this)"></div>
+          <div class="c-swatch" style="background:#5AC8FA;" onclick="selectColor('#5AC8FA', this)"></div>
+          <div class="c-swatch" style="background:#34C759;" onclick="selectColor('#34C759', this)"></div>
+          <div class="c-swatch" style="background:#FFD60A;" onclick="selectColor('#FFD60A', this)"></div>
+          <div class="c-swatch" style="background:#FF9F0A;" onclick="selectColor('#FF9F0A', this)"></div>
+          <div class="c-swatch" style="background:#FF6961;" onclick="selectColor('#FF6961', this)"></div>
+          <div class="c-swatch" style="background:#BF5AF2;" onclick="selectColor('#BF5AF2', this)"></div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="addEventToRange()">+ Lưu vào nhóm ngày đã chọn</button>
+
+      <!-- Danh sách công việc của tuần đang chọn -->
+      <div style="margin-top: 16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:13px; font-weight:600; color:var(--sub);" id="weekListTitle">Lịch trình trong tuần đang xem</span>
+          <button onclick="clearAllEvents()" style="background:none; border:none; color:#FF453A; font-size:12px;">Xóa hết mẫu</button>
+        </div>
+        <div id="eventsListContainer"></div>
+      </div>
+    </div>
+
+    <!-- PHẦN 3: REMINDERS (NHẮC NHỞ DƯỚI CÙNG) -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-title" style="color:#FF9F0A;">Reminders (Ghi chú cuối màn hình)</span>
+      </div>
+      <div class="input-row">
+        <input type="text" id="remInput" placeholder="VD: Mang pin dự phòng, thẻ nhớ...">
+        <button class="btn-primary" style="width:90px; flex-shrink:0;" onclick="addReminder()">Thêm</button>
+      </div>
+      <div id="remindersListContainer"></div>
+    </div>
+
+  </div>
+
+  <!-- ================= MÀN HÌNH 2: XEM TRƯỚC & XUẤT HÌNH NỀN ================= -->
+  <div class="screen" id="screen-preview">
+    <div class="studio-wrapper">
       
-      <!-- Form thêm công việc -->
-      <div class="card">
-        <div class="form-group">
-          <label>Nội dung sự kiện (Tối đa 15 ký tự)</label>
-          <input type="text" id="taskTitle" placeholder="VD: Khảo sát dự án" maxlength="15">
-        </div>
-        
-        <div class="row-date">
-          <div class="form-group">
-            <label>Từ ngày</label>
-            <input type="date" id="taskStart">
-          </div>
-          <div class="form-group">
-            <label>Đến ngày</label>
-            <input type="date" id="taskEnd">
-          </div>
-        </div>
+      <!-- Khung Lockscreen mô phỏng trực tiếp -->
+      <div class="lockscreen-frame" id="previewFrame">
+        <div class="bg-layer" id="previewBgLayer"></div>
+        <div class="bg-dim" id="previewDimLayer"></div>
 
-        <div class="form-group">
-          <label>Phân loại màu</label>
-          <div class="color-picker">
-            <div class="color-dot active" style="background: #32D74B;" onclick="pickColor('#32D74B', this)"></div> <!-- Xanh lá -->
-            <div class="color-dot" style="background: #FF9F0A;" onclick="pickColor('#FF9F0A', this)"></div> <!-- Cam -->
-            <div class="color-dot" style="background: #FF453A;" onclick="pickColor('#FF453A', this)"></div> <!-- Đỏ -->
-            <div class="color-dot" style="background: #0A84FF;" onclick="pickColor('#0A84FF', this)"></div> <!-- Xanh dương -->
-            <div class="color-dot" style="background: #BF5AF2;" onclick="pickColor('#BF5AF2', this)"></div> <!-- Tím -->
-          </div>
-        </div>
-        <button class="btn-add" onclick="addTask()">+ Thêm vào Lịch</button>
-      </div>
-
-      <h3 style="font-size: 16px; margin-bottom: 12px; color: var(--ios-subtext);">Sự kiện trong tháng này</h3>
-      <div class="task-list" id="taskListUI">
-        <!-- Danh sách render bằng JS -->
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 2: XEM TRƯỚC VÀ XUẤT ẢNH -->
-  <div id="page-preview" class="page">
-    <div class="preview-container">
-      <!-- Khung mô phỏng iPhone -->
-      <div class="phone-stage">
-        <!-- Canvas nội tại xuất ảnh phân giải 1290x2796 -->
-        <canvas id="wallpaperCanvas" width="1290" height="2796"></canvas>
-        <div class="ios-overlay" id="iosOverlay">
+        <!-- Đồng hồ & Widget iOS -->
+        <div class="ios-top-hud">
           <div class="dynamic-island"></div>
-          <div class="ios-clock">09:41</div>
+          <div class="hud-date" id="hudDateStr">Wed 11 Nov</div>
+          <div class="hud-clock">10:21</div>
+          <div class="hud-widgets">
+            <div>☀️ 28° Mostly Sunny</div>
+            <div>🔋 92%</div>
+          </div>
+        </div>
+
+        <!-- Lớp Lịch 1 Tuần + Today Agenda di chuyển mượt bằng GPU -->
+        <div id="gpuAgendaLayer"></div>
+      </div>
+
+      <!-- Thanh điều khiển không độ trễ -->
+      <div class="studio-controls">
+        <div class="slider-row">
+          <span>Vị trí dọc</span>
+          <input type="range" id="sliderY" min="180" max="320" value="230" oninput="updateGpuPosition()">
+        </div>
+        <div class="slider-row">
+          <span>Độ tối nền</span>
+          <input type="range" id="sliderDim" min="0" max="80" value="38" oninput="updateGpuPosition()">
+        </div>
+
+        <div class="studio-btn-grid">
+          <input type="file" id="bgFileInput" accept="image/*" style="display:none;" onchange="handleBgUpload(event)">
+          <button class="btn-primary" style="background:var(--card2);" onclick="document.getElementById('bgFileInput').click()">🖼️ Chọn ảnh nền</button>
+          <button class="btn-primary" onclick="exportHighResWallpaper()">⇡ Xuất ra Màn hình khóa</button>
         </div>
       </div>
 
-      <!-- Bảng điều khiển tinh chỉnh -->
-      <div class="editor-controls">
-        <div class="control-row">
-          <label>Vị trí</label>
-          <input type="range" id="posY" min="500" max="1500" value="700">
-        </div>
-        <div class="control-row">
-          <label>Độ mờ</label>
-          <input type="range" id="cardOpacity" min="0" max="60" value="25">
-        </div>
-
-        <div class="btn-action-group">
-          <input type="file" id="fileInput" accept="image/*" style="display:none;">
-          <button class="btn-action btn-secondary" onclick="document.getElementById('fileInput').click()">🖼️ Đổi ảnh nền</button>
-          <button class="btn-action btn-secondary" onclick="resetBg()">Xóa nền</button>
-          <button class="btn-action btn-primary" onclick="exportToLockscreen()">⇡ Đặt làm Hình nền</button>
-        </div>
-      </div>
     </div>
   </div>
 
-  <!-- BOTTOM NATIVE TABS -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('planner', this)">
-      <span class="tab-icon">📝</span>
-      <span>Công việc</span>
-    </div>
-    <div class="tab-item" onclick="switchTab('preview', this)">
-      <span class="tab-icon">📱</span>
-      <span>Xem trước</span>
-    </div>
-  </div>
+  <!-- Canvas ẩn độ phân giải chuẩn Retina (1290 x 2796) chỉ chạy khi bấm Xuất ảnh -->
+  <canvas id="exportCanvas" width="1290" height="2796" style="display:none;"></canvas>
 
 <script>
-// BIẾN TOÀN CỤC & LOCAL STORAGE
-const canvas = document.getElementById('wallpaperCanvas');
-const ctx = canvas.getContext('2d');
-let bgImage = null;
-let activeColor = '#32D74B';
-let isRendering = false; // Flag chống lag
-
-// Lấy dữ liệu công việc (Định dạng: mảng các object)
-let tasks = JSON.parse(localStorage.getItem('lockscreen_tasks') || '[]');
-
-// Khởi tạo ngày hôm nay
-const now = new Date();
-document.getElementById('monthPicker').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-document.getElementById('taskStart').value = now.toISOString().split('T')[0];
-document.getElementById('taskEnd').value = now.toISOString().split('T')[0];
-
-// HÀM CHUYỂN TAB
-function switchTab(tabId, el) {
-  document.querySelectorAll('.tab-item').forEach(i => i.classList.remove('active'));
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById(`page-${tabId}`).classList.add('active');
-  
-  if (tabId === 'preview') requestRender(); // Chỉ kết xuất đồ họa khi xem trước
+// ================= 1. THUẬT TOÁN ÂM LỊCH (CHỈ LỌC MÙNG 1 & 29/30 CUỐI THÁNG) =================
+function jdFromDate(d, m, y) {
+  const a = Math.floor((14 - m) / 12);
+  const y2 = y + 4800 - a;
+  const m2 = m + 12 * a - 3;
+  return d + Math.floor((153 * m2 + 2) / 5) + 365 * y2 + Math.floor(y2 / 4) - Math.floor(y2 / 100) + Math.floor(y2 / 400) - 32045;
+}
+function getNewMoonDay(k, timeZone = 7) {
+  const T = k / 1236.85, T2 = T * T, T3 = T2 * T, dr = Math.PI / 180;
+  let Jd1 = 2415020.75933 + 29.53058868 * k + 0.0001178 * T2 - 0.000000155 * T3;
+  Jd1 += 0.00033 * Math.sin((166.56 + 132.87 * T - 0.009173 * T2) * dr);
+  const M = 359.2242 + 29.10535608 * k - 0.0000333 * T2 - 0.00000347 * T3;
+  const Mpr = 306.0253 + 385.81691806 * k + 0.0107306 * T2 + 0.00001236 * T3;
+  const F = 21.2964 + 390.67050646 * k - 0.0016528 * T2 - 0.00000239 * T3;
+  const C1 = (0.1734 - 0.000393 * T) * Math.sin(M * dr) + 0.0021 * Math.sin(2 * dr * M);
+  const C2 = -0.4068 * Math.sin(Mpr * dr) + 0.0161 * Math.sin(2 * dr * Mpr);
+  const C3 = -0.0051 * Math.sin((M + Mpr) * dr);
+  const C4 = 0.0104 * Math.sin(2 * F * dr) - 0.0074 * Math.sin((M - Mpr) * dr) - 0.0004 * Math.sin(2 * F * dr + M * dr);
+  return Math.floor(Jd1 + C1 + C2 + C3 + C4 + 0.5 + timeZone / 24);
+}
+function getLunarSpecialLabel(dateObj) {
+  const d = dateObj.getDate(), m = dateObj.getMonth() + 1, y = dateObj.getFullYear();
+  const currentJd = jdFromDate(d, m, y);
+  const k = Math.floor((currentJd - 2415021.076998695) / 29.530588853);
+  let nm = getNewMoonDay(k);
+  if (nm > currentJd) nm = getNewMoonDay(k - 1);
+  let nextNm = getNewMoonDay(k + 1);
+  if (nextNm <= currentJd) nextNm = getNewMoonDay(k + 2);
+  const lunarDay = currentJd - nm + 1;
+  const daysInLunarMonth = nextNm - nm;
+  if (lunarDay === 1) return 'M.1';
+  if (lunarDay === daysInLunarMonth) return String(lunarDay); // 29 hoặc 30 cuối tháng âm
+  return '';
 }
 
-function pickColor(color, el) {
-  activeColor = color;
-  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+// ================= 2. TRẠNG THÁI & DỮ LIỆU CỤC BỘ =================
+const toISO = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const fromISO = (s) => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+
+let todayDate = new Date();
+let viewYear = todayDate.getFullYear();
+let viewMonth = todayDate.getMonth();
+
+// Chọn nhóm ngày (Range selection)
+let rangeStartISO = toISO(todayDate);
+let rangeEndISO = toISO(todayDate);
+let isSelectingSecondTap = false;
+
+// Ngày được lấy làm tâm điểm cho tuần và danh sách Today trên Lockscreen
+let focusDateISO = toISO(todayDate);
+let selectedColor = '#3897F0';
+let customBgDataUrl = localStorage.getItem('ls_bg_img') || null;
+
+// Khởi tạo dữ liệu mẫu giống hệt ảnh mẫu nếu mở lần đầu
+let eventsData = JSON.parse(localStorage.getItem('ls_week_events') || 'null');
+let remindersData = JSON.parse(localStorage.getItem('ls_week_reminders') || 'null');
+
+if (!eventsData) {
+  const monday = getMondayOfWeek(todayDate);
+  const dayISO = (offset) => { const d = new Date(monday); d.setDate(d.getDate() + offset); return toISO(d); };
+  eventsData = [
+    { id: '1', start: dayISO(0), end: dayISO(6), time: '05:30–10:00', title: 'Wake up and gym', color: '#3897F0' },
+    { id: '2', start: dayISO(1), end: dayISO(1), time: '12:00–13:00', title: 'Lunch with Jo', color: '#5AC8FA' },
+    { id: '3', start: dayISO(1), end: dayISO(1), time: '13:30–14:00', title: 'Meetings', color: '#FFD60A' },
+    { id: '4', start: dayISO(1), end: dayISO(6), time: '16:30–17:00', title: 'Reviewing KPIs', color: '#FF6961' }
+  ];
+  focusDateISO = dayISO(1);
+  rangeStartISO = dayISO(1);
+  rangeEndISO = dayISO(1);
+  localStorage.setItem('ls_week_events', JSON.stringify(eventsData));
+}
+if (!remindersData) {
+  remindersData = ['Fruits', 'Cheese'];
+  localStorage.setItem('ls_week_reminders', JSON.stringify(remindersData));
+}
+
+function getMondayOfWeek(d) {
+  const copy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const day = copy.getDay();
+  const diff = copy.getDate() - day + (day === 0 ? -6 : 1);
+  copy.setDate(diff);
+  return copy;
+}
+
+// ================= 3. ĐIỀU HƯỚNG 2 MÀN HÌNH TÁCH BIỆT =================
+function switchScreen(mode) {
+  document.getElementById('btnModePlan').classList.toggle('active', mode === 'plan');
+  document.getElementById('btnModePreview').classList.toggle('active', mode === 'preview');
+  document.getElementById('screen-plan').classList.toggle('active', mode === 'plan');
+  document.getElementById('screen-preview').classList.toggle('active', mode === 'preview');
+  if (mode === 'preview') {
+    renderLockscreenPreviewDOM();
+    updateGpuPosition();
+  }
+}
+
+// ================= 4. LƯỚI LỊCH CHỌN NHÓM NGÀY TRỰC QUAN =================
+function changeMonth(delta) {
+  viewMonth += delta;
+  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  renderInteractiveCalendar();
+}
+
+function onTapCalendarDate(iso) {
+  if (!isSelectingSecondTap) {
+    // Chạm lần 1: Đặt ngày bắt đầu
+    rangeStartISO = iso;
+    rangeEndISO = iso;
+    focusDateISO = iso;
+    isSelectingSecondTap = true;
+  } else {
+    // Chạm lần 2: Quét chọn cả nhóm ngày
+    if (iso < rangeStartISO) {
+      rangeEndISO = rangeStartISO;
+      rangeStartISO = iso;
+    } else {
+      rangeEndISO = iso;
+    }
+    isSelectingSecondTap = false;
+  }
+  renderInteractiveCalendar();
+  renderEventsList();
+}
+
+function setAsFocusDay() {
+  focusDateISO = rangeStartISO;
+  renderInteractiveCalendar();
+  renderEventsList();
+}
+
+function fmtShortVN(iso) {
+  const [,m,d] = iso.split('-');
+  return `${d}/${m}`;
+}
+
+function renderInteractiveCalendar() {
+  document.getElementById('calMonthTitle').textContent = `Tháng ${viewMonth + 1} • ${viewYear}`;
+  const grid = document.getElementById('interactiveCalGrid');
+  grid.innerHTML = '';
+
+  const firstDay = new Date(viewYear, viewMonth, 1);
+  const startOffset = (firstDay.getDay() + 6) % 7; // Thứ 2 = 0
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+  const focusMonday = getMondayOfWeek(fromISO(focusDateISO));
+  const focusSunday = new Date(focusMonday);
+  focusSunday.setDate(focusMonday.getDate() + 6);
+  const weekStartISO = toISO(focusMonday);
+  const weekEndISO = toISO(focusSunday);
+
+  // Ô trống đầu tháng
+  for (let i = 0; i < startOffset; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'cal-cell other-month';
+    grid.appendChild(empty);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cellDate = new Date(viewYear, viewMonth, d);
+    const iso = toISO(cellDate);
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell';
+
+    // Tô sáng nhóm ngày đang chọn
+    if (iso === rangeStartISO && iso === rangeEndISO) cell.classList.add('range-single');
+    else if (iso === rangeStartISO) cell.classList.add('range-start');
+    else if (iso === rangeEndISO) cell.classList.add('range-end');
+    else if (iso > rangeStartISO && iso < rangeEndISO) cell.classList.add('in-range');
+
+    // Gạch chân xanh lá cho tuần đang hiển thị ra Lockscreen
+    if (iso >= weekStartISO && iso <= weekEndISO) {
+      cell.classList.add('active-week-indicator');
+    }
+
+    const lunarLabel = getLunarSpecialLabel(cellDate);
+    const dayEvents = eventsData.filter(e => iso >= e.start && iso <= e.end);
+    const dotsHtml = dayEvents.slice(0, 4).map(e => `<span class="mini-dot" style="background:${e.color}"></span>`).join('');
+
+    cell.innerHTML = `
+      <span>${d}</span>
+      ${lunarLabel ? `<span class="lunar-mini">${lunarLabel}</span>` : ''}
+      ${dotsHtml ? `<div class="dot-row">${dotsHtml}</div>` : ''}
+    `;
+    cell.onclick = () => onTapCalendarDate(iso);
+    grid.appendChild(cell);
+  }
+
+  const labelEl = document.getElementById('selectedRangeText');
+  if (rangeStartISO === rangeEndISO) {
+    labelEl.textContent = `${fmtShortVN(rangeStartISO)} (Chạm ngày khác để nối nhóm ngày)`;
+  } else {
+    labelEl.textContent = `Nhóm ngày: ${fmtShortVN(rangeStartISO)} ➔ ${fmtShortVN(rangeEndISO)}`;
+  }
+}
+
+// ================= 5. THÊM / XÓA SỰ KIỆN & REMINDERS =================
+function selectColor(color, el) {
+  selectedColor = color;
+  document.querySelectorAll('.c-swatch').forEach(s => s.classList.remove('active'));
   el.classList.add('active');
 }
 
-// LOGIC CÔNG VIỆC
-function addTask() {
-  const title = document.getElementById('taskTitle').value.trim();
-  const start = document.getElementById('taskStart').value;
-  const end = document.getElementById('taskEnd').value;
-  
-  if (!title) return alert("Vui lòng nhập tên công việc");
-  if (start > end) return alert("Ngày bắt đầu không được lớn hơn ngày kết thúc");
+function addEventToRange() {
+  const timeStr = document.getElementById('evTime').value.trim() || 'Cả ngày';
+  const titleStr = document.getElementById('evTitle').value.trim();
+  if (!titleStr) return alert('Bạn hãy nhập nội dung công việc nhé!');
 
-  tasks.push({
-    id: Date.now().toString(),
-    title: title,
-    start: start,
-    end: end,
-    color: activeColor
+  eventsData.push({
+    id: String(Date.now()),
+    start: rangeStartISO,
+    end: rangeEndISO,
+    time: timeStr,
+    title: titleStr,
+    color: selectedColor
   });
 
-  saveAndRefresh();
-  document.getElementById('taskTitle').value = ''; // Reset form
+  localStorage.setItem('ls_week_events', JSON.stringify(eventsData));
+  document.getElementById('evTitle').value = '';
+  isSelectingSecondTap = false;
+  renderInteractiveCalendar();
+  renderEventsList();
 }
 
-function deleteTask(id) {
-  tasks = tasks.filter(t => t.id !== id);
-  saveAndRefresh();
+function deleteEvent(id) {
+  eventsData = eventsData.filter(e => e.id !== id);
+  localStorage.setItem('ls_week_events', JSON.stringify(eventsData));
+  renderInteractiveCalendar();
+  renderEventsList();
 }
 
-function saveAndRefresh() {
-  localStorage.setItem('lockscreen_tasks', JSON.stringify(tasks));
-  renderTaskList();
-  requestRender();
+function clearAllEvents() {
+  eventsData = [];
+  localStorage.setItem('ls_week_events', JSON.stringify(eventsData));
+  renderInteractiveCalendar();
+  renderEventsList();
 }
 
-// RENDER DANH SÁCH RA HTML (Tab 1)
-function renderTaskList() {
-  const listUI = document.getElementById('taskListUI');
-  const [yyyy, mm] = document.getElementById('monthPicker').value.split('-');
-  const targetMonth = `${yyyy}-${mm}`;
+function renderEventsList() {
+  const container = document.getElementById('eventsListContainer');
+  const monday = getMondayOfWeek(fromISO(focusDateISO));
+  const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+  const wStart = toISO(monday), wEnd = toISO(sunday);
 
-  listUI.innerHTML = '';
-  // Chỉ hiện việc của tháng đang chọn
-  const currentTasks = tasks.filter(t => t.start.startsWith(targetMonth) || t.end.startsWith(targetMonth));
-  
-  if (currentTasks.length === 0) {
-    listUI.innerHTML = '<div style="text-align:center; color:#8E8E93; font-size:14px; margin-top:20px;">Tháng này chưa có lịch trình.</div>';
+  document.getElementById('weekListTitle').textContent =
+    `Lịch tuần (${fmtShortVN(wStart)} – ${fmtShortVN(wEnd)}) • Today: ${fmtShortVN(focusDateISO)}`;
+
+  const list = eventsData.filter(e => !(e.end < wStart || e.start > wEnd));
+  if (list.length === 0) {
+    container.innerHTML = `<div style="font-size:13px; color:var(--sub); padding:10px 0;">Chưa có sự kiện nào trong tuần này.</div>`;
     return;
   }
 
-  // Sắp xếp theo ngày bắt đầu
-  currentTasks.sort((a,b) => a.start.localeCompare(b.start)).forEach(t => {
-    // Định dạng lại ngày để hiển thị đẹp (VD: 15/11 -> 17/11)
-    const fmt = d => `${d.split('-')[2]}/${d.split('-')[1]}`;
-    const dateStr = (t.start === t.end) ? fmt(t.start) : `${fmt(t.start)} ➔ ${fmt(t.end)}`;
-    
-    listUI.innerHTML += `
-      <div class="task-item">
-        <div class="task-info">
-          <div class="task-title">
-            <div class="task-dot" style="background: ${t.color};"></div>
-            ${t.title}
-          </div>
-          <div class="task-date">${dateStr}</div>
+  container.innerHTML = list.map(e => {
+    const rangeTag = (e.start === e.end) ? fmtShortVN(e.start) : `${fmtShortVN(e.start)} ➔ ${fmtShortVN(e.end)}`;
+    return `
+      <div class="event-item" style="border-left-color:${e.color}">
+        <div>
+          <div style="font-size:14px; font-weight:600;">${e.title}</div>
+          <div class="event-meta">${e.time} • ${rangeTag}</div>
         </div>
-        <button class="btn-delete" onclick="deleteTask('${t.id}')">Xóa</button>
+        <button class="btn-del" onclick="deleteEvent('${e.id}')">Xóa</button>
       </div>
     `;
-  });
+  }).join('');
 }
 
-// ĐỔI ẢNH NỀN
-document.getElementById('fileInput').addEventListener('change', (e) => {
-  if (!e.target.files[0]) return;
+function addReminder() {
+  const inp = document.getElementById('remInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  remindersData.push(val);
+  localStorage.setItem('ls_week_reminders', JSON.stringify(remindersData));
+  inp.value = '';
+  renderRemindersList();
+}
+
+function deleteReminder(idx) {
+  remindersData.splice(idx, 1);
+  localStorage.setItem('ls_week_reminders', JSON.stringify(remindersData));
+  renderRemindersList();
+}
+
+function renderRemindersList() {
+  const box = document.getElementById('remindersListContainer');
+  box.innerHTML = remindersData.map((r, idx) => `
+    <div class="event-item" style="border-left-color:#FF9F0A">
+      <div style="font-size:14px;">${r}</div>
+      <button class="btn-del" onclick="deleteReminder(${idx})">Xóa</button>
+    </div>
+  `).join('');
+}
+
+// ================= 6. XEM TRƯỚC MÀN HÌNH KHÓA (1 TUẦN + TODAY + REMINDERS) =================
+function handleBgUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
   const reader = new FileReader();
-  reader.onload = ev => { const img = new Image(); img.onload = () => { bgImage = img; requestRender(); }; img.src = ev.target.result; };
-  reader.readAsDataURL(e.target.files[0]);
-});
-function resetBg() { bgImage = null; requestRender(); }
+  reader.onload = ev => {
+    customBgDataUrl = ev.target.result;
+    try { localStorage.setItem('ls_bg_img', customBgDataUrl); } catch(err) {}
+    applyBgPreview();
+  };
+  reader.readAsDataURL(file);
+}
 
+function applyBgPreview() {
+  const bgEl = document.getElementById('previewBgLayer');
+  if (customBgDataUrl) {
+    bgEl.style.backgroundImage = `url(${customBgDataUrl})`;
+  }
+}
 
-// ENGINE CHỐNG LAG (THROTTLE RENDERING)
-// Giúp slider Y mượt mà không bắt CPU vẽ lại quá nhanh
-function requestRender() {
-  if (!isRendering) {
-    isRendering = true;
-    requestAnimationFrame(() => {
-      drawCanvas();
-      isRendering = false;
+function updateGpuPosition() {
+  const y = document.getElementById('sliderY').value;
+  const dim = document.getElementById('sliderDim').value / 100;
+  document.getElementById('gpuAgendaLayer').style.transform = `translate3d(0, ${y}px, 0)`;
+  document.getElementById('previewDimLayer').style.background = `rgba(0,0,0,${dim})`;
+}
+
+// Tạo giao diện 1 Tuần + Today Agenda giống ảnh mẫu trên màn hình Preview
+function renderLockscreenPreviewDOM() {
+  applyBgPreview();
+  const focusDate = fromISO(focusDateISO);
+  const monday = getMondayOfWeek(focusDate);
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  const dowIndex = (focusDate.getDay() + 6) % 7;
+  document.getElementById('hudDateStr').textContent = `${dayNames[dowIndex]} ${focusDate.getDate()} ${monthNames[focusDate.getMonth()]}`;
+
+  // 1. Hàng Lịch 1 Tuần (7 cột)
+  let weekColsHtml = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const iso = toISO(d);
+    const isFocus = (iso === focusDateISO);
+    const lunarBadge = getLunarSpecialLabel(d);
+    const dayEvs = eventsData.filter(e => iso >= e.start && iso <= e.end)
+                              .sort((a,b) => a.time.localeCompare(b.time));
+
+    const pillsHtml = dayEvs.slice(0, 4).map(ev => {
+      const darkText = (ev.color === '#FFD60A' || ev.color === '#5AC8FA');
+      return `
+        <div style="background:${ev.color}; color:${darkText ? '#000' : '#fff'}; border-radius:3px; padding:1.5px 2px; margin-bottom:2px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">
+          <div style="font-size:5.5px; font-weight:700; opacity:0.9; line-height:1.1;">${ev.time}</div>
+          <div style="font-size:6px; font-weight:700; line-height:1.15; overflow:hidden; text-overflow:ellipsis;">${ev.title}</div>
+        </div>
+      `;
+    }).join('');
+
+    weekColsHtml += `
+      <div style="flex:1; min-width:0; display:flex; flex-direction:column;">
+        <div style="text-align:center; margin-bottom:4px;">
+          <div style="font-size:9px; color:${isFocus ? '#fff' : 'rgba(255,255,255,0.75)'}; font-weight:${isFocus ? '700' : '500'};">${dayNames[i]}</div>
+          <div style="font-size:10px; font-weight:700; color:${isFocus ? '#0A84FF' : '#fff'};">
+            ${d.getDate()}${lunarBadge ? `<span style="font-size:7px; color:#FF9F0A; margin-left:1px;">(${lunarBadge})</span>` : ''}
+          </div>
+        </div>
+        <div>${pillsHtml}</div>
+      </div>
+    `;
+  }
+
+  // 2. Mục Today (Danh sách công việc trong ngày Focus)
+  const todayEvs = eventsData.filter(e => focusDateISO >= e.start && focusDateISO <= e.end)
+                             .sort((a,b) => a.time.localeCompare(b.time));
+
+  const todayRowsHtml = todayEvs.length > 0 ? todayEvs.map(ev => `
+    <div style="display:flex; align-items:baseline; gap:12px; margin-top:5px; font-size:11.5px; font-weight:600;">
+      <div style="color:rgba(255,255,255,0.92); min-width:74px; font-variant-numeric:tabular-nums;">${ev.time}</div>
+      <div style="color:${ev.color}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${ev.title}</div>
+    </div>
+  `).join('') : `<div style="font-size:11px; color:rgba(255,255,255,0.5); margin-top:4px;">Không có lịch trình</div>`;
+
+  // 3. Mục Reminders
+  const remindersHtml = remindersData.length > 0 ? `
+    <div style="margin-top:12px;">
+      <div style="font-size:12px; font-weight:700; color:#FF9F0A; margin-bottom:3px;">Reminders</div>
+      ${remindersData.map(r => `<div style="font-size:11.5px; font-weight:600; color:#fff; margin-top:2px;">${r}</div>`).join('')}
+    </div>
+  ` : '';
+
+  document.getElementById('gpuAgendaLayer').innerHTML = `
+    <div style="display:flex; gap:3px; margin-bottom:14px;">${weekColsHtml}</div>
+    <div>
+      <div style="font-size:13.5px; font-weight:700; color:#fff; margin-bottom:2px;">Today</div>
+      ${todayRowsHtml}
+    </div>
+    ${remindersHtml}
+  `;
+}
+
+// ================= 7. XUẤT ẢNH LOCKSCREEN RETINA (1290 x 2796) =================
+async function exportHighResWallpaper() {
+  const canvas = document.getElementById('exportCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height; // 1290 x 2796
+  const scaleFactor = H / 620; // Tỷ lệ phóng từ khung Preview 620px lên 2796px (~4.51x)
+
+  // 1. Vẽ nền
+  if (customBgDataUrl) {
+    const img = new Image();
+    img.src = customBgDataUrl;
+    await new Promise(res => { img.onload = res; img.onerror = res; });
+    const s = Math.max(W / img.width, H / img.height);
+    ctx.drawImage(img, (W - img.width * s) / 2, (H - img.height * s) / 2, img.width * s, img.height * s);
+  } else {
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#1e232a');
+    grad.addColorStop(0.55, '#121519');
+    grad.addColorStop(1, '#090a0c');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  const dim = document.getElementById('sliderDim').value / 100;
+  ctx.fillStyle = `rgba(0,0,0,${dim})`;
+  ctx.fillRect(0, 0, W, H);
+
+  // 2. Tọa độ bắt đầu theo thanh trượt Y
+  const startY = parseInt(document.getElementById('sliderY').value, 10) * scaleFactor;
+  const padX = 72;
+  const contentW = W - padX * 2;
+  const colGap = 14;
+  const colW = (contentW - colGap * 6) / 7;
+
+  const focusDate = fromISO(focusDateISO);
+  const monday = getMondayOfWeek(focusDate);
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  let maxWeekBottomY = startY + 120;
+
+  // 3. Vẽ 7 cột Lịch Tuần + Các thẻ màu (Pills)
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const iso = toISO(d);
+    const isFocus = (iso === focusDateISO);
+    const lunarBadge = getLunarSpecialLabel(d);
+    const colX = padX + i * (colW + colGap);
+
+    // Thứ (Mon, Tue...)
+    ctx.font = `${isFocus ? '700' : '500'} 40px -apple-system, sans-serif`;
+    ctx.fillStyle = isFocus ? '#FFFFFF' : 'rgba(255,255,255,0.78)';
+    ctx.textAlign = 'center';
+    ctx.fillText(dayNames[i], colX + colW / 2, startY);
+
+    // Số ngày Dương + Nhãn Âm lịch (nếu là Mùng 1 hoặc 29/30)
+    const dayLabel = lunarBadge ? `${d.getDate()} (${lunarBadge})` : `${d.getDate()}`;
+    ctx.font = `700 ${lunarBadge ? '34px' : '42px'} -apple-system, sans-serif`;
+    ctx.fillStyle = isFocus ? '#0A84FF' : (lunarBadge ? '#FF9F0A' : '#FFFFFF');
+    ctx.fillText(dayLabel, colX + colW / 2, startY + 48);
+
+    // Các khối màu sự kiện dưới mỗi ngày
+    const dayEvs = eventsData.filter(e => iso >= e.start && iso <= e.end)
+                              .sort((a,b) => a.time.localeCompare(b.time));
+    let pillY = startY + 70;
+    dayEvs.slice(0, 4).forEach(ev => {
+      const pillH = 68;
+      ctx.fillStyle = ev.color;
+      ctx.beginPath();
+      ctx.roundRect(colX, pillY, colW, pillH, 12);
+      ctx.fill();
+
+      const darkText = (ev.color === '#FFD60A' || ev.color === '#5AC8FA');
+      ctx.fillStyle = darkText ? '#000000' : '#FFFFFF';
+      ctx.textAlign = 'left';
+
+      ctx.font = '700 22px -apple-system, sans-serif';
+      ctx.fillText(ev.time.slice(0, 11), colX + 10, pillY + 26);
+
+      ctx.font = '700 24px -apple-system, sans-serif';
+      let shortTitle = ev.title;
+      if (shortTitle.length > 10) shortTitle = shortTitle.slice(0, 9) + '…';
+      ctx.fillText(shortTitle, colX + 10, pillY + 54);
+
+      pillY += pillH + 10;
+    });
+
+    if (pillY > maxWeekBottomY) maxWeekBottomY = pillY;
+  }
+
+  // 4. Vẽ mục "Today" (Daily Agenda)
+  let curY = maxWeekBottomY + 75;
+  ctx.textAlign = 'left';
+  ctx.font = '700 62px -apple-system, sans-serif';
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillText('Today', padX, curY);
+
+  curY += 68;
+  const todayEvs = eventsData.filter(e => focusDateISO >= e.start && focusDateISO <= e.end)
+                             .sort((a,b) => a.time.localeCompare(b.time));
+
+  if (todayEvs.length === 0) {
+    ctx.font = '500 46px -apple-system, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillText('Không có lịch trình', padX, curY);
+    curY += 60;
+  } else {
+    todayEvs.forEach(ev => {
+      ctx.font = '600 50px -apple-system, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.92)';
+      ctx.fillText(ev.time, padX, curY);
+
+      ctx.fillStyle = ev.color;
+      ctx.fillText(ev.title, padX + 350, curY);
+      curY += 72;
     });
   }
+
+  // 5. Vẽ mục "Reminders"
+  if (remindersData.length > 0) {
+    curY += 35;
+    ctx.font = '700 56px -apple-system, sans-serif';
+    ctx.fillStyle = '#FF9F0A';
+    ctx.fillText('Reminders', padX, curY);
+    curY += 66;
+
+    ctx.font = '600 50px -apple-system, sans-serif';
+    ctx.fillStyle = '#FFFFFF';
+    remindersData.forEach(r => {
+      ctx.fillText(r, padX, curY);
+      curY += 66;
+    });
+  }
+
+  // 6. Gọi iOS Share Sheet để đẩy qua Shortcut đặt hình nền
+  canvas.toBlob(blob => {
+    const file = new File([blob], 'lockscreen_agenda.png', { type: 'image/png' });
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: 'Lockscreen Agenda' }).catch(() => {});
+    } else {
+      const a = document.createElement('a');
+      a.download = 'lockscreen_agenda.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    }
+  }, 'image/png', 1.0);
 }
 
-// THUẬT TOÁN VẼ LÊN CANVAS ĐỘ PHÂN GIẢI CAO (Tab 2)
-function drawCanvas() {
-  const [yyyy, mm] = document.getElementById('monthPicker').value.split('-').map(Number);
-  const startY = parseInt(document.getElementById('posY').value, 10);
-  const opacity = parseInt(document.getElementById('cardOpacity').value, 10) / 100;
-  
-  // 1. Vẽ Nền
-  if (bgImage) {
-    const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
-    const x = (canvas.width - bgImage.width * scale) / 2, y = (canvas.height - bgImage.height * scale) / 2;
-    ctx.drawImage(bgImage, x, y, bgImage.width * scale, bgImage.height * scale);
-  } else {
-    ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.25)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // 2. Vẽ Tấm Kính Lịch
-  const baseWidth = 1140, baseHeight = 900, boxX = (canvas.width - baseWidth) / 2, boxY = startY;
+// Khởi chạy ban đầu
+renderInteractiveCalendar();
+renderEventsList();
+renderRemindersList();
+</script>
+</body>
+</html>
